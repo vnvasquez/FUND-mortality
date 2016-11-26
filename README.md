@@ -4,7 +4,7 @@
 
 This iteration of FUND in Julia has been cloned for the purpose of experimenting with the mortality, morbidity, and VSL components. All code manipulation efforts stem from my understanding of the structure of the sector-specific empirical response functions that are being developed by the Climate Impact Lab and the Global Policy Lab, where I completed my DS421-required internship in the summer of 2016 working in the climate-driven migration sector. That summer internship furnished the foundation for the work I have added to this github repo: please see the "ImpactDeathMorbidityNEW.jl" component. 
 
-##### The remaining text is included from the original for explanatory purposes #####
+##### Please note: The text below is included from the original for explanatory purposes. #####
 
 # Fund.jl
 
