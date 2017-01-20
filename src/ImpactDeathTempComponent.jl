@@ -20,6 +20,7 @@ using Mimi
     gammameantemp2 = Parameter()
 
     #Variables
+    ypc             = Variable(index=[time,regions])
     popop           = Variable(index=[time,regions])
     morttempeffect1 = Variable(index=[time,regions])
     morttempeffect2 = Variable(index=[time,regions])
