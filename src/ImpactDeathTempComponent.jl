@@ -40,10 +40,7 @@ function run_timestep(s::impactdeathtemp, t::Int)
 
         v.morttempeffect2 = p.betaconstant2 * exp(p.gammagdppc2 * p.ypc[r, t] + p.gammapopop2 * v.popop + p.gammameantemp2 * p.temp[r, t - 7])
 
-        # Using CIL data, this amounts to the change in mortality rate from a baseline of 2001-2010 levels 
         v.morttemp = (v.morttempeffect1 * p.temp[t, r] + v.morttempeffect2 * p.temp[t, r]^2) * p.population[t, r] * 1e6 / 100000.
-
-        #
       end
     end
 
