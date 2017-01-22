@@ -220,6 +220,10 @@ function constructfund(;nsteps=1050)
     connectparameter(m, :impactaggregation, :wetcost, :impactsealevelrise, :wetcost)
     connectparameter(m, :impactaggregation, :leavecost, :impactsealevelrise, :leavecost)
 
+    return m
+
+  end
+
     function getfund(;nsteps=1050, datadir="../data", params=nothing)
         # ---------------------------------------------
         # Load parameters
@@ -246,11 +250,4 @@ function constructfund(;nsteps=1050)
 
         return m
 
-      end
-
-      return getfund
-
-end
-
-# Return the function we want (creates model and relevant connections)
-#getfund = constructfund()
+    end
