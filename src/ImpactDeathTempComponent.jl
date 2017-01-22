@@ -4,11 +4,12 @@ using Mimi
     regions = Index()
 
     #Parameters
+    vsl            = Parameter(index=[time,regions])
     populationin1  = Parameter(index=[time,regions])
     population     = Parameter(index=[time,regions])
     income         = Parameter(index=[time,regions])
     area           = Parameter(index=[time,regions])
-    temp           = Parameter(index=[time,regions])
+    temp           = Parameter(index=[time])
 
     betaconstant   = Parameter()
 
@@ -43,8 +44,8 @@ function run_timestep(s::impactdeathtemp, t::Int)
         v.logpopop = log(p.populationin1[t, r] / p.area[t, r])
 
         # Using CIL data, this amounts to the change in mortality rate from a baseline of 2001-2010
-        v.morttempeffect = p.betaconstant + (p.gammatemp1 * p.temp[r, t - 7]) + (p.gammatemp2 * (p.temp[r, t - 7])^2) + (p.gammagdppc1 * p.temp[r, t - 7] * p.logypc[r, t]) +
-                          (p.gammagdppc2 * (p.temp[r, t - 7])^2 * p.logypc[r, t]) + (p.gammapopop1 * (p.temp[r, t - 7]) * v.logpopop) + (p.gammapopop2 * (p.temp[r, t - 7])^2 * v.logpopop)
+        v.morttempeffect = p.betaconstant + (p.gammatemp1 * p.temp[t - 7]) + (p.gammatemp2 * (p.temp[t - 7])^2) + (p.gammagdppc1 * p.temp[t - 7] * p.logypc[r, t]) +
+                          (p.gammagdppc2 * (p.temp[t - 7])^2 * p.logypc[r, t]) + (p.gammapopop1 * (p.temp[t - 7]) * v.logpopop) + (p.gammapopop2 * (p.temp[t - 7])^2 * v.logpopop)
 
         # Calculate number dead
         v.dead = v.morttempeffect * p.population[t, r] * 1e6 / 100000.

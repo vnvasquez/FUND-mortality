@@ -220,32 +220,37 @@ function constructfund(;nsteps=1050)
     connectparameter(m, :impactaggregation, :wetcost, :impactsealevelrise, :wetcost)
     connectparameter(m, :impactaggregation, :leavecost, :impactsealevelrise, :leavecost)
 
-    return m
+    function getfund(;nsteps=1050, datadir="../data", params=nothing)
+        # ---------------------------------------------
+        # Load parameters
+        # ---------------------------------------------
+        if params==nothing
+            parameters = loadparameters(datadir)
+        else
+            parameters = params
+        end
+
+        # ---------------------------------------------
+        # Construct model
+        # ---------------------------------------------
+        m = constructfund(nsteps=nsteps)
+
+        # ---------------------------------------------
+        # Load remaining parameters from file
+        # ---------------------------------------------
+        setleftoverparameters(m, parameters)
+
+        # ---------------------------------------------
+        # Return model
+        # ---------------------------------------------
+
+        return m
+
+      end
+
+      return getfund
+
 end
 
-function getfund(;nsteps=1050, datadir="../data", params=nothing)
-    # ---------------------------------------------
-    # Load parameters
-    # ---------------------------------------------
-    if params==nothing
-        parameters = loadparameters(datadir)
-    else
-        parameters = params
-    end
-
-    # ---------------------------------------------
-    # Construct model
-    # ---------------------------------------------
-    m = constructfund(nsteps=nsteps)
-
-    # ---------------------------------------------
-    # Load remaining parameters from file
-    # ---------------------------------------------
-    setleftoverparameters(m, parameters)
-
-    # ---------------------------------------------
-    # Return model
-    # ---------------------------------------------
-
-    return m
-end
+# Return the function we want (creates model and relevant connections)
+#getfund = constructfund()
