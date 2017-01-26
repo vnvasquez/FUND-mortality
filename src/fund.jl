@@ -172,7 +172,7 @@ function constructfund(;nsteps=1050)
     connectparameter(m, :vslvmorb, :population, :population, :population)
     connectparameter(m, :vslvmorb, :income, :socioeconomic, :income)
 
-    #=connectparameter(m, :impactdeathmorbidity, :vsl, :vslvmorb, :vsl)
+    connectparameter(m, :impactdeathmorbidity, :vsl, :vslvmorb, :vsl)
     connectparameter(m, :impactdeathmorbidity, :vmorb, :vslvmorb, :vmorb)
     connectparameter(m, :impactdeathmorbidity, :population, :population, :population)
     connectparameter(m, :impactdeathmorbidity, :dengue, :impactvectorbornediseases, :dengue)
@@ -184,7 +184,7 @@ function constructfund(;nsteps=1050)
     connectparameter(m, :impactdeathmorbidity, :diadead, :impactdiarrhoea, :diadead)
     connectparameter(m, :impactdeathmorbidity, :hurrdead, :impacttropicalstorms, :hurrdead)
     connectparameter(m, :impactdeathmorbidity, :extratropicalstormsdead, :impactextratropicalstorms, :extratropicalstormsdead)
-    connectparameter(m, :impactdeathmorbidity, :diasick, :impactdiarrhoea, :diasick)=#
+    connectparameter(m, :impactdeathmorbidity, :diasick, :impactdiarrhoea, :diasick)
 
     connectparameter(m, :impactdeathtemp, :vsl, :vslvmorb, :vsl)
     connectparameter(m, :impactdeathtemp, :temp, :climatedynamics, :temp)
