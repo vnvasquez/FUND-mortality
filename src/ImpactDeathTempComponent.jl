@@ -53,12 +53,15 @@ function run_timestep(s::impactdeathtemp, t::Int)
         # Calculate number dead
         v.gcpdead[t, r] = v.morttempeffect[r] * p.population[t, r]
 
-        v.dead[t, r] = v.gcpdead[t, r] - v.gcpdead[8, r] + v.funddead[8, r]
+        if t>8
+          for r in d.regions
+            v.dead[t, r] = (v.gcpdead[t, r] - v.gcpdead[8, r]) + v.funddead[8, r]
+          end
 
         # Cost
         v.deadcost[t, r] = p.vsl[t, r] * v.dead[t, r] / 1000000000.0
 
       end
     end
-
+  end
 end
