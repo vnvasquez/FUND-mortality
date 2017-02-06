@@ -3,6 +3,14 @@ using Mimi
 @defcomp impactdeathtemp begin
     regions = Index()
 
+    #Variables
+    logypc             = Variable(index=[time,regions])
+    logpopop           = Variable(index=[time,regions])
+    morttempeffect     = Variable(index=[time,regions])
+    gcpdead            = Variable(index=[time,regions])
+    dead               = Variable(index=[time,regions])
+    deadcost           = Variable(index=[time,regions])
+
     #Parameters
     vsl            = Parameter(index=[time,regions])
     populationin1  = Parameter(index=[time,regions])
@@ -21,14 +29,6 @@ using Mimi
     gammatemp2     = Parameter(index=[regions])
     gammagdppc2    = Parameter(index=[regions])
     gammapopop2    = Parameter(index=[regions])
-
-    #Variables
-    logypc             = Variable(index=[time,regions])
-    logpopop           = Variable(index=[time,regions])
-    morttempeffect     = Variable(index=[time,regions])
-    gcpdead            = Variable(index=[time,regions])
-    dead               = Variable(index=[time,regions])
-    deadcost           = Variable(index=[time,regions])
 
 end
 
