@@ -1,3 +1,4 @@
+#Run once upon initializing to avoid dict-kv issue
 cd("src")
 
 using Mimi
@@ -10,6 +11,7 @@ results = getfund()
 run(results)
 
 #Results
-CILcoeff_results = DataFrame(MortRate=results[:impactdeathtemp, :morttempeffect], DeadTot=testrun[:impactdeathtemp, :dead], CostTot=testrun[:impactdeathtemp, :deadcost])
+CILcoeff_results = DataFrame(MortRate=results[:impactdeathtemp, :morttempeffect],
+DeadTot=testrun[:impactdeathtemp, :dead], CostTot=testrun[:impactdeathtemp, :deadcost])
 
 VSL_results = DataFrame(VSLdiffelast=results[:vslvmorb, :vsl])
