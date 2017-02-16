@@ -1,3 +1,5 @@
+cd("src")
+
 using Mimi
 
 #Load function to construct model

@@ -7,9 +7,9 @@
     yll = Variable(index=[time,regions])
     yld = Variable(index=[time,regions])
     deadcost = Variable(index=[time,regions])
-    morbcost = Variable(index=[time,regions])
+    #morbcost = Variable(index=[time,regions])
     vsl = Parameter(index=[time,regions])
-    vmorb = Parameter(index=[time,regions])
+    #vmorb = Parameter(index=[time,regions])
 
     d2ld = Parameter(index=[regions])
     d2ls = Parameter(index=[regions])
@@ -58,7 +58,7 @@ function run_timestep(s::impactdeathmorbidity, t::Int)
             v.deadcost[t, r] = p.vsl[t, r] * v.funddead[t, r] / 1000000000.0
             # deadcost:= vyll*ypc*yll/1000000000
 
-            v.morbcost[t, r] = p.vmorb[t, r] * v.yld[t, r] / 1000000000.0
+            #v.morbcost[t, r] = p.vmorb[t, r] * v.yld[t, r] / 1000000000.0
         end
     end
 end

@@ -21,7 +21,7 @@
     extratropicalstormsdam = Parameter(index=[time,regions])
     species = Parameter(index=[time,regions])
     deadcost = Parameter(index=[time,regions])
-    morbcost = Parameter(index=[time,regions])
+    #morbcost = Parameter(index=[time,regions])
     wetcost = Parameter(index=[time,regions])
     leavecost = Parameter(index=[time,regions])
 
@@ -61,7 +61,7 @@ function run_timestep(s::impactaggregation, t::Int)
             v.sloss[t, r] = 0.0 +
                 p.species[t, r] +
                 p.deadcost[t, r] +
-                p.morbcost[t, r] +
+                #p.morbcost[t, r] +
                 p.wetcost[t, r] +
                 p.leavecost[t, r] +
                 p.sloss_other[t,r]
