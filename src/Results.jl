@@ -11,7 +11,8 @@ results = getfund()
 run(results)
 
 #Results
-CILcoeff_results = DataFrame(MortRate=results[:impactdeathtemp, :morttempeffect],
-DeadTot=testrun[:impactdeathtemp, :dead], CostTot=testrun[:impactdeathtemp, :deadcost])
+using DataFrames
+CILcoeff_results = DataFrame(MortRate=results[:impactdeathtemp, :morttempeffect],DeadTot=results[:impactdeathtemp, :dead],
+CostTot=results[:impactdeathtemp, :deadcost])
 
 VSL_results = DataFrame(VSLdiffelast=results[:vslvmorb, :vsl])

@@ -48,7 +48,7 @@ function run_timestep(s::impactdeathtemp, t::Int)
 
         # Using CIL data, this amounts to the change in mortality rate from a baseline of 2001-2010
         v.morttempeffect[t, r] = p.betaconstant[r] + (p.gammatemp1[r] * p.temp[t - 7, r]) + (p.gammatemp2[r] * (p.temp[t - 7, r])^2) +
-                                (p.gammagdppc1[r] * p.temp[t - 7, r] * p.logypc[t, r]) + (p.gammagdppc2[r] * (p.temp[t - 7, r])^2 * p.logypc[t, r]) +
+                                (p.gammagdppc1[r] * p.temp[t - 7, r] * v.logypc[t, r]) + (p.gammagdppc2[r] * (p.temp[t - 7, r])^2 * v.logypc[t, r]) +
                                 (p.gammapopop1[r] * (p.temp[t - 7, r]) * v.logpopop[t, r]) + (p.gammapopop2[r] * (p.temp[t - 7, r])^2 * v.logpopop[t, r])
 
         # Calculate number dead

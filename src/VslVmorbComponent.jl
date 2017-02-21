@@ -36,7 +36,7 @@ function run_timestep(s::vslvmorb, t::Int)
 
             # Explicit VSL values of 1.0 and 1.5.
             # Q: include VSL of 0.5 too? Miguel et al.
-            if v.ypc < p.vslypc0
+            if v.ypc[t, r] < p.vslypc0
               v.vsl[t, r] = p.vslbm * (v.ypc[t,r] / p.vslypc0)^p.vslel_high
             else
               v.vsl[t, r] = p.vslbm * (v.ypc[t,r] / p.vslypc0)^p.vslel_mid
