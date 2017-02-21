@@ -12,6 +12,20 @@ run(results)
 
 #Results
 using DataFrames
+
+# Mortality rate
+results[:impactdeathtemp, :morttempeffect]
+
+# Total dead
+results[:impactdeathtemp, :dead]
+
+# Total cost
+results[:impactdeathtemp, :deadcost]
+
+# VSL results
+results[:vslvmorb, :vsl]
+
+# Construct dataframes of above
 CILcoeff_results = DataFrame(MortRate=results[:impactdeathtemp, :morttempeffect],DeadTot=results[:impactdeathtemp, :dead],
 CostTot=results[:impactdeathtemp, :deadcost])
 
