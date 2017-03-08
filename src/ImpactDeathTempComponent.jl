@@ -20,7 +20,7 @@ using Mimi
     temp           = Parameter(index=[time,regions])
     funddead       = Parameter(index=[time,regions])
 
-    betaconstant   = Parameter(index=[regions])
+    #betaconstant   = Parameter(index=[regions])
 
     gammatemp1     = Parameter(index=[regions])
     gammagdppc1    = Parameter(index=[regions])
@@ -47,7 +47,7 @@ function run_timestep(s::impactdeathtemp, t::Int)
         v.logpopop[t, r] = log(p.populationin1[t, r] / p.area[t, r])
 
         # Using CIL data, this amounts to the change in mortality rate from a baseline of 2001-2010
-        v.morttempeffect[t, r] = p.betaconstant[r] + (p.gammatemp1[r] * p.temp[t - 7, r]) + (p.gammatemp2[r] * (p.temp[t - 7, r])^2) +
+        v.morttempeffect[t, r] = (p.gammatemp1[r] * p.temp[t - 7, r]) + (p.gammatemp2[r] * (p.temp[t - 7, r])^2) +
                                 (p.gammagdppc1[r] * p.temp[t - 7, r] * v.logypc[t, r]) + (p.gammagdppc2[r] * (p.temp[t - 7, r])^2 * v.logypc[t, r]) +
                                 (p.gammapopop1[r] * (p.temp[t - 7, r]) * v.logpopop[t, r]) + (p.gammapopop2[r] * (p.temp[t - 7, r])^2 * v.logpopop[t, r])
 
