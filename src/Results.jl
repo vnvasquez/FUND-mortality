@@ -17,15 +17,19 @@ using DataFrames
 results[:impactdeathtemp, :morttempeffect]
 
 # Total dead
-results[:impactdeathtemp, :dead]
+results[:impactdeathtemp, :gcpdead]
+results[:impactdeathmorbidity, :dead]
 
 # Total cost
-results[:impactdeathtemp, :deadcost]
+results[:impactdeathmorbidity, :deadcost]
 
 # VSL results
 results[:vslvmorb, :vsl]
 
+####################################
 # Construct dataframes of above
+####################################
+
 CILcoeff_results = DataFrame(MortRate=results[:impactdeathtemp, :morttempeffect],DeadTot=results[:impactdeathtemp, :dead],
 CostTot=results[:impactdeathtemp, :deadcost])
 

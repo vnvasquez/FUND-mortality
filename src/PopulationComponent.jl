@@ -1,4 +1,4 @@
-﻿using Mimi
+using Mimi
 
 @defcomp population begin
     regions             = Index()

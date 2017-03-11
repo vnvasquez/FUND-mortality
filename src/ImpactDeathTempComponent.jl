@@ -18,7 +18,7 @@ using Mimi
     income         = Parameter(index=[time,regions])
     area           = Parameter(index=[time,regions])
     temp           = Parameter(index=[time,regions])
-    funddead       = Parameter(index=[time,regions])
+    #funddead       = Parameter(index=[time,regions])
 
     #betaconstant   = Parameter(index=[regions])
 
@@ -52,6 +52,6 @@ function run_timestep(s::impactdeathtemp, t::Int)
         # Calculate number dead
         v.gcpdead[t, r] = v.morttempeffect[t,r] * p.population[t, r]
 
-  end
+      end 
 
 end
