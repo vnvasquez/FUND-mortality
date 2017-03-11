@@ -38,36 +38,19 @@ function run_timestep(s::impactdeathtemp, t::Int)
     p = s.Parameters
     d = s.Dimensions
 
-    if t>7
-
-      for r in d.regions
+    for r in d.regions
 
         v.logypc[t, r] = log(p.income[t, r] / p.population[t, r] * 1000.0)
 
         v.logpopop[t, r] = log(p.populationin1[t, r] / p.area[t, r])
 
         # Using CIL data, this amounts to the change in mortality rate from a baseline of 2001-2010
-        v.morttempeffect[t, r] = (p.gammatemp1[r] * p.temp[t - 7, r]) + (p.gammatemp2[r] * (p.temp[t - 7, r])^2) +
-                                (p.gammagdppc1[r] * p.temp[t - 7, r] * v.logypc[t, r]) + (p.gammagdppc2[r] * (p.temp[t - 7, r])^2 * v.logypc[t, r]) +
-                                (p.gammapopop1[r] * (p.temp[t - 7, r]) * v.logpopop[t, r]) + (p.gammapopop2[r] * (p.temp[t - 7, r])^2 * v.logpopop[t, r])
+        v.morttempeffect[t, r] = (p.gammatemp1[r] * p.temp[t , r]) + (p.gammatemp2[r] * (p.temp[t, r])^2) +
+                                (p.gammagdppc1[r] * p.temp[t, r] * v.logypc[t, r]) + (p.gammagdppc2[r] * (p.temp[t, r])^2 * v.logypc[t, r]) +
+                                (p.gammapopop1[r] * (p.temp[t, r]) * v.logpopop[t, r]) + (p.gammapopop2[r] * (p.temp[t, r])^2 * v.logpopop[t, r])
 
         # Calculate number dead
         v.gcpdead[t, r] = v.morttempeffect[t,r] * p.population[t, r]
-
-        if t>=8
-
-          for r in d.regions
-
-            v.dead[t, r] = (v.gcpdead[t, r] - v.gcpdead[8, r]) + p.funddead[8, r]
-
-          end
-
-        # Cost
-        v.deadcost[t, r] = p.vsl[t, r] * v.dead[t, r] / 1000000000.0
-
-      end
-
-    end
 
   end
 

@@ -48,7 +48,9 @@ function run_timestep(s::impactdeathmorbidity, t::Int)
         for r in d.regions
             v.funddead[t, r] = p.dengue[t, r] + p.schisto[t, r] + p.malaria[t, r] + p.cardheat[t, r] + p.cardcold[t, r] + p.resp[t, r] + p.diadead[t, r] + p.hurrdead[t, r] + p.extratropicalstormsdead[t, r] + p.dead_other[t,r]
             if v.funddead[t, r] > p.population[t, r] * 1000000.0
-                v.funddead[t, r] = p.population[t, r] / 1000000.0
+
+              #CORRECTED: Formerly divided; edited to multiply per J. Rising 3-8-17
+                v.funddead[t, r] = p.population[t, r] * 1000000.0
             end
 
             v.yll[t, r] = p.d2ld[r] * p.dengue[t, r] + p.d2ls[r] * p.schisto[t, r] + p.d2lm[r] * p.malaria[t, r] + p.d2lc[r] * p.cardheat[t, r] + p.d2lc[r] * p.cardcold[t, r] + p.d2lr[r] * p.resp[t, r]
@@ -57,8 +59,8 @@ function run_timestep(s::impactdeathmorbidity, t::Int)
 
             v.deadcost[t, r] = p.vsl[t, r] * v.funddead[t, r] / 1000000000.0
             # deadcost:= vyll*ypc*yll/1000000000
-
             #v.morbcost[t, r] = p.vmorb[t, r] * v.yld[t, r] / 1000000000.0
+
         end
     end
 end
