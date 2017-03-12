@@ -40,7 +40,7 @@ function run_timestep(s::impactdeathtemp, t::Int)
 
     for r in d.regions
 
-        v.logypc[t, r] = log(p.income[t, r] / p.population[t, r] * 1000.0)
+        v.logypc[t, r] = log((p.income[t, r] / p.population[t, r]) * 1000.0)
 
         v.logpopop[t, r] = log(p.populationin1[t, r] / p.area[t, r])
 
@@ -52,6 +52,6 @@ function run_timestep(s::impactdeathtemp, t::Int)
         # Calculate number dead
         v.gcpdead[t, r] = v.morttempeffect[t,r] * p.population[t, r]
 
-      end 
+      end
 
 end

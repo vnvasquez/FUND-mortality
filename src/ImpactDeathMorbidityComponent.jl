@@ -44,7 +44,7 @@ function run_timestep(s::impactdeathmorbidity, t::Int)
     p = s.Parameters
     d = s.Dimensions
 
-    #if t>1
+    if t>1
         for r in d.regions
             v.dead[t, r] = p.dengue[t, r] + p.schisto[t, r] + p.malaria[t, r] + p.cardheat[t, r] + p.cardcold[t, r] + p.resp[t, r] + p.diadead[t, r] + p.hurrdead[t, r] + p.extratropicalstormsdead[t, r] + p.dead_other[t,r]
             if v.dead[t, r] > (p.population[t, r] * 1000000.0)
@@ -62,5 +62,5 @@ function run_timestep(s::impactdeathmorbidity, t::Int)
             # deadcost:= vyll*ypc*yll/1000000000
             #v.morbcost[t, r] = p.vmorb[t, r] * v.yld[t, r] / 1000000000.0
         end
-    #end
+    end
 end

@@ -1,5 +1,8 @@
-#Run once upon initializing to avoid dict-kv issue
+###############################################################
+#Run once upon initializing to avoid dict-kv issue. This
+#may soon change within Mimi to make the structure more robust.
 cd("src")
+###############################################################
 
 using Mimi
 
@@ -10,27 +13,25 @@ include("fund.jl")
 results = getfund()
 run(results)
 
-#Results
-using DataFrames
+###############################################################
+#Create dataframes to view results
+###############################################################
+
+using DataArrays, DataFrames
 
 # Mortality rate
-results[:impactdeathtemp, :morttempeffect]
+mortrate_df = DataFrame(results[:impactdeathtemp, :morttempeffect])
+writetable("mortrate_febdata.csv", mortrate_df)
 
 # Total dead
-results[:impactdeathtemp, :gcpdead]
-results[:impactdeathmorbidity, :dead]
+gcpdead_df = DataFrame(results[:impactdeathtemp, :gcpdead])
+writetable("gcpdead_febdata.csv", gcpdead_df)
+
+totaldead_df = DataFrame(results[:impactdeathmorbidity, :dead])
 
 # Total cost
-results[:impactdeathmorbidity, :deadcost]
+totalcost_df = DataFrame(results[:impactdeathmorbidity, :deadcost])
 
 # VSL results
-results[:vslvmorb, :vsl]
-
-####################################
-# Construct dataframes of above
-####################################
-
-CILcoeff_results = DataFrame(MortRate=results[:impactdeathtemp, :morttempeffect],DeadTot=results[:impactdeathtemp, :dead],
-CostTot=results[:impactdeathtemp, :deadcost])
-
-VSL_results = DataFrame(VSLdiffelast=results[:vslvmorb, :vsl])
+vsl_df = DataFrame(results[:vslvmorb, :vsl])
+writetable("vsl_high mid.csv", vsl_df)

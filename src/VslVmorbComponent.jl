@@ -28,7 +28,7 @@ function run_timestep(s::vslvmorb, t::Int)
     p = s.Parameters
     d = s.Dimensions
 
-    #if t>1
+    if t>1
         for r in d.regions
 
             # CORRECTED: For discussion, but added ".v" ahead of ypc, and included as variable above.
@@ -44,5 +44,5 @@ function run_timestep(s::vslvmorb, t::Int)
 
             #v.vmorb[t, r] = p.vmorbbm * (ypc / p.vmorbypc0)^p.vmorbel
         end
-    #end
+    end
 end
