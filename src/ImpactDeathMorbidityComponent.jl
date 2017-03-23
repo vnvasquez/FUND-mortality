@@ -33,6 +33,7 @@
     extratropicalstormsdead = Parameter(index=[time,regions])
     population = Parameter(index=[time,regions])
     diasick = Parameter(index=[time,regions])
+
     # Other sources of death (GCPdead connected here; does not include additional metrics)
     dead_other = Parameter(index=[time,regions])
     # Other sources of sickness

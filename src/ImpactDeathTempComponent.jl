@@ -9,7 +9,7 @@ using Mimi
     morttempeffect     = Variable(index=[time,regions])
     gcpdead            = Variable(index=[time,regions])
     dead               = Variable(index=[time,regions])
-    deadcost           = Variable(index=[time,regions])
+    gcpdeadcost        = Variable(index=[time,regions])
 
     #Parameters
     vsl            = Parameter(index=[time,regions])
@@ -50,7 +50,10 @@ function run_timestep(s::impactdeathtemp, t::Int)
                                 (p.gammapopop1[r] * (p.temp[t, r]) * v.logpopop[t, r]) + (p.gammapopop2[r] * (p.temp[t, r])^2 * v.logpopop[t, r])
 
         # Calculate number dead
-        v.gcpdead[t, r] = v.morttempeffect[t,r] * p.population[t, r]
+        v.gcpdead[t, r] = v.morttempeffect[t, r] * p.population[t, r]
+
+        # Calculate cost for strictly GCP data (no need to divide by 1_000_000_000.0 here as in impactdeathmorbidity)
+        v.gcpdeadcost[t, r] = (p.vsl[t, r] * v.gcpdead[t, r])
 
       end
 
