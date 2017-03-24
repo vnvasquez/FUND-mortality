@@ -49,11 +49,11 @@ function run_timestep(s::impactdeathtemp, t::Int)
                                 (p.gammagdppc1[r] * p.temp[t, r] * v.logypc[t, r]) + (p.gammagdppc2[r] * (p.temp[t, r])^2 * v.logypc[t, r]) +
                                 (p.gammapopop1[r] * (p.temp[t, r]) * v.logpopop[t, r]) + (p.gammapopop2[r] * (p.temp[t, r])^2 * v.logpopop[t, r])
 
-        # Calculate number dead
+        # Calculate deaths (change in number of dead?? additional dead to add to funddead)
         v.gcpdead[t, r] = v.morttempeffect[t, r] * p.population[t, r]
 
-        # Calculate cost for strictly GCP data (no need to divide by 1_000_000_000.0 here as in impactdeathmorbidity)
-        v.gcpdeadcost[t, r] = (p.vsl[t, r] * v.gcpdead[t, r])
+        # Calculate cost for strictly GCP data.
+        v.gcpdeadcost[t, r] = (p.vsl[t, r] * v.gcpdead[t, r])/1_000_000_000.0
 
       end
 

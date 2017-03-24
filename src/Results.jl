@@ -51,10 +51,17 @@ writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\t_gcpcost.csv", g
 # Total Mortality: Create dataframes to view results
 #####################################################################
 
-#= Total rate
-totmortrate_df = DataFrame(results[:impactdeathmorbidity, :morttempeffect])
-totmortrate_region_df = unstack(totmortrate_df , :time, :regions, :morttempeffect)
-writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\totmortrate_febdata.csv", totmortrate_region_df)=#
+#Extract population (in millions)
+population_df = DataFrame(results[:population, :population])
+population_region_df = unstack(population_df, :time, :regions, :deadrate)
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\population.csv", population_region_df)
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\t_population.csv", population_df)
+
+#Total rate
+totmortrate_df = DataFrame(results[:impactdeathmorbidity, :deadrate])
+totmortrate_region_df = unstack(totmortrate_df , :time, :regions, :deadrate)
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\totmortrate.csv", totmortrate_region_df)
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\t_totmortrate.csv", totmortrate_df)
 
 # Total dead
 totaldead_df = getdataframe(results,:impactdeathmorbidity, :dead)
