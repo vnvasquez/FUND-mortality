@@ -7,7 +7,7 @@
     yll = Variable(index=[time,regions])
     yld = Variable(index=[time,regions])
     deadcost = Variable(index=[time,regions])
-    # added March 2014
+    # added March 2017
     deadrate = Variable(index=[time,regions])
     #morbcost = Variable(index=[time,regions])
     vsl = Parameter(index=[time,regions])
@@ -52,7 +52,7 @@ function run_timestep(s::impactdeathmorbidity, t::Int)
             v.dead[t, r] = p.dengue[t, r] + p.schisto[t, r] + p.malaria[t, r] + p.cardheat[t, r] + p.cardcold[t, r] + p.resp[t, r] + p.diadead[t, r] + p.hurrdead[t, r] + p.extratropicalstormsdead[t, r] + p.dead_other[t,r]
             if v.dead[t, r] > (p.population[t, r] * 1000000.0)
 
-              #CORRECTED: Formerly divided; edited to multiply per J. Rising 3-8-17
+              # CORRECTED: Formerly divided; edited to multiply per J. Rising 3-8-17
                 v.dead[t, r] = p.population[t, r] * 1000000.0
             end
 
@@ -62,10 +62,11 @@ function run_timestep(s::impactdeathmorbidity, t::Int)
 
             v.deadcost[t, r] = (p.vsl[t, r] * v.dead[t, r]) / 1000000000.0
 
-            v.deadrate[t, r] = v.dead[t, r]/p.population[t, r]
+            # ADDED: deadrate; nb that multiply population by 1M to accord with units for dead
+            v.deadrate[t, r] = v.dead[t, r]/ (p.population[t, r]*1000000.0)
 
             # deadcost:= vyll*ypc*yll/1000000000
-            #v.morbcost[t, r] = p.vmorb[t, r] * v.yld[t, r] / 1000000000.0
+            # v.morbcost[t, r] = p.vmorb[t, r] * v.yld[t, r] / 1000000000.0
         end
     end
 end

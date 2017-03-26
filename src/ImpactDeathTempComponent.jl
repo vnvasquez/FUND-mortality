@@ -45,14 +45,16 @@ function run_timestep(s::impactdeathtemp, t::Int)
         v.logpopop[t, r] = log(p.populationin1[t, r] / p.area[t, r])
 
         # Using CIL data, this amounts to the change in mortality rate from a baseline of 2001-2010
+        # For plotting purposes, this value is referred to as "gcpmortrate"
+        # UNITS = deaths per person
         v.morttempeffect[t, r] = (p.gammatemp1[r] * p.temp[t , r]) + (p.gammatemp2[r] * (p.temp[t, r])^2) +
                                 (p.gammagdppc1[r] * p.temp[t, r] * v.logypc[t, r]) + (p.gammagdppc2[r] * (p.temp[t, r])^2 * v.logypc[t, r]) +
                                 (p.gammapopop1[r] * (p.temp[t, r]) * v.logpopop[t, r]) + (p.gammapopop2[r] * (p.temp[t, r])^2 * v.logpopop[t, r])
 
-        # Calculate deaths (change in number of dead?? additional dead to add to funddead)
-        v.gcpdead[t, r] = v.morttempeffect[t, r] * p.population[t, r]
+        # Calculate deaths; multiply by 1 million to achieve same units as dead in impactdeathmorbidity component
+        v.gcpdead[t, r] = v.morttempeffect[t, r] * (p.population[t, r] * 1000000.0)
 
-        # Calculate cost for strictly GCP data.
+        # Calculate cost for strictly GCP data. Divide by 1 billion to have units of $B.
         v.gcpdeadcost[t, r] = (p.vsl[t, r] * v.gcpdead[t, r])/1_000_000_000.0
 
       end
