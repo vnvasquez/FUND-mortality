@@ -33,9 +33,9 @@ function getmarginaldamages(;emissionyear=2010,parameters=nothing,yearstoaggrega
     damage1 = m1[:impactaggregation,:loss]
     damage2 = m2[:impactaggregation,:loss]
 
-    # Calculate the marginal damage between run 1 and 2 for each
-    # year/region
-    marginaldamage = (damage2.-damage1)/10000000.0
+    # Calculate the marginal damage between run 1 and 2 for each year/region
+    # NB that 10000000.0 = because 10 years worth of emissions
+    marginaldamage = (damage2.-damage1)/10_000_000.0
 
     return marginaldamage
 end

@@ -115,10 +115,100 @@ writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\t_fundrate.csv",s
 
 # Compute derivatives using finite differencing scheme
 
+# Using one ton pulse for single year
+function getmarginaldamages1(;emissionyear=2010,parameters=nothing,yearstoaggregate=1000,gas=:C)
+    yearstorun = min(1050, getindexfromyear(emissionyear) + yearstoaggregate)
 
+    m1 = getfund(nsteps=yearstorun,params=parameters)
+    m2 = getfund(nsteps=yearstorun,params=parameters)
+    addcomponent(m2, adder, :marginalemission, before=:climateco2cycle)
+    addem = zeros(yearstorun+1)
+    addem[getindexfromyear(emissionyear)] = 1.0
+    setparameter(m2,:marginalemission,:add,addem)
+    if gas==:C
+        connectparameter(m2,:marginalemission,:input,:emissions,:mco2)
+        connectparameter(m2,:climateco2cycle,:mco2,:marginalemission,:output)
+    else
+        error("Unknown gas.")
+    end
 
+    run(m1)
+    run(m2)
 
+    damage1 = m1[:impactaggregation,:loss]
+    damage2 = m2[:impactaggregation,:loss]
 
+    # Calculate the marginal damage between run 1 and 2 for each year/region
+    marginaldamage1 = (damage2.-damage1)/1_000_000.0
+
+    return marginaldamage1
+end
+
+# Using one ton pulse each year for ten years
+function getmarginaldamages10(;emissionyear=2010,parameters=nothing,yearstoaggregate=1000,gas=:C)
+    yearstorun = min(1050, getindexfromyear(emissionyear) + yearstoaggregate)
+
+    m1 = getfund(nsteps=yearstorun,params=parameters)
+    m2 = getfund(nsteps=yearstorun,params=parameters)
+    addcomponent(m2, adder, :marginalemission, before=:climateco2cycle)
+    addem = zeros(yearstorun+1)
+    addem[getindexfromyear(emissionyear):getindexfromyear(emissionyear)+9] = 1.0
+    setparameter(m2,:marginalemission,:add,addem)
+    if gas==:C
+        connectparameter(m2,:marginalemission,:input,:emissions,:mco2)
+        connectparameter(m2,:climateco2cycle,:mco2,:marginalemission,:output)
+    else
+        error("Unknown gas.")
+    end
+
+    run(m1)
+    run(m2)
+
+    damage1 = m1[:impactaggregation,:loss]
+    damage2 = m2[:impactaggregation,:loss]
+
+    # Calculate the marginal damage between run 1 and 2 for each year/region
+    # NB that 10000000.0 = because 10 years worth of emissions
+    marginaldamage10 = (damage2.-damage1)/10_000_000.0
+
+    return marginaldamage10
+end
+
+# View results
+marginaldamage1 = getmarginaldamages1()
+marginaldamage10 = getmarginaldamages10()
+
+md1 = DataFrame(marginaldamage1)
+md10 = DataFrame(marginaldamage10)
+
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\marginaldamage1.csv",md1)
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\marginaldamage10.csv",md10)
+
+#=first approach: compute MD and SCC
+
+SCC_1ton = sum(marginaldamage1[2:end,:].*df[2:end,:])
+SCC_10ton = sum(marginaldamage10[2:end,:].*df[2:end,:])
+
+base_run = getfund()
+marginal_run1 = getfund()
+marginal_run2 = getfund()
+
+#Change parameters to fit this case
+setparameter(base_run, :Emissions, :x, 1.0)
+setparameter(marginal_run1, :Emissions, :x, 1.0)
+setparameter(marginal_run2, :Emissions, :x, 1.0)
+
+#Run model
+run(base_run)
+run(marginal_run1)
+run(marginal_run2)
+
+scc = sum(marginaldamageX[2:end,:].*df[2:end,:])
+
+#Temperature
+Temp = DataFrame(Base=base_run[:climatedynamics, :temp], Marginal=marginal_run1[:climatedynamics, :temp], High = marginal_run2[:climatedynamics, :temp])
+#Damages
+Damages = DataFrame(Base=base_run[:damages, :dam_dollar], Low=low_run[:damages, :dam_dollar], High = high_run[:damages, :dam_dollar])=#
 
 
 #####################################################################
@@ -182,7 +272,7 @@ writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\VSLdifference.csv
 # VSLaltered_2 (FLEXIBLE VERSION)
 #####################################################################
 
-# VSL altered run (elasticities allowed to vary between 1.5 - or possibly 2.0 - and 0.5)
+#=VSL altered run (elasticities allowed to vary between 1.5 - or possibly 2.0 - and 0.5)
 altered2_run = getfund()
 
 #Change parameter to fit this case.
@@ -196,4 +286,4 @@ run(altered2_run)
 # View results
 VSL_altered2 = getdataframe(results,:vslvmorb, :vsl)
 VSL_altered2 = unstack(VSL_altered2, :time, :regions, :vsl)
-writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\vslaltered2.csv", VSL_altered2)
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\vslaltered2.csv", VSL_altered2)=#
