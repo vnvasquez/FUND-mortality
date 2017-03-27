@@ -113,7 +113,7 @@ writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\t_fundrate.csv",s
 
 
 #####################################################################
-# Marginal Mortality: FUND and GCP Joint 
+# Marginal Mortality: FUND and GCP Joint
 #####################################################################
 
 # Compute derivatives using finite differencing scheme
@@ -261,6 +261,54 @@ Temp = DataFrame(Base=base_run[:climatedynamics, :temp], Marginal=marginal_run1[
 #Damages
 Damages = DataFrame(Base=base_run[:damages, :dam_dollar], Low=low_run[:damages, :dam_dollar], High = high_run[:damages, :dam_dollar])=#
 
+#####################################################################
+# Test Dynamic Vulnerability
+#####################################################################
+
+# establish test models
+adapt_basecase = getfund()
+adapt_temp = getfund()
+adapt_gdp = getfund()
+adapt_pop = getfund()
+
+# Change parameter to fit these cases
+# Recall, regressions from GCP team furnished 1 valuue per region: hence zeros(16)
+setparameter(adapt_temp, :impactdeathtemp, :gammatemp1, zeros(16))
+setparameter(adapt_temp, :impactdeathtemp, :gammatemp2, zeros(16))
+
+setparameter(adapt_gdp, :impactdeathtemp, :gammagdppc1, zeros(16))
+setparameter(adapt_gdp, :impactdeathtemp, :gammagdppc2, zeros(16))
+
+setparameter(adapt_pop, :impactdeathtemp, :gammapopop1, zeros(16))
+setparameter(adapt_pop, :impactdeathtemp, :gammapopop2, zeros(16))
+
+#Run model
+run(adapt_basecase)
+run(adapt_temp)
+run(adapt_gdp)
+run(adapt_pop)
+
+# View results
+adapt_basecase_gcp = getdataframe(adapt_basecase,:impactdeathtemp, :gcpdead) # in millions
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\adapt_basecase_gcp.csv", adapt_basecase_gcp)
+adapt_basecase_total = getdataframe(adapt_basecase,:impactdeathmorbidity, :dead) # per person
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\adapt_basecase_total.csv", adapt_basecase_total)
+
+adapt_temp_gcp = getdataframe(adapt_temp,:impactdeathtemp, :gcpdead) # recall that this figure is in millions
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\adapt_temp_gcp.csv", adapt_temp_gcp)
+adapt_temp_total = getdataframe(adapt_temp,:impactdeathmorbidity, :dead) # this one is in per person units
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\adapt_temp_total.csv", adapt_temp_total)
+
+adapt_gdp_gcp = getdataframe(adapt_gdp,:impactdeathtemp, :gcpdead) # in millions
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\adapt_gdp_gcp.csv", adapt_gdp_gcp)
+adapt_gdp_total = getdataframe(adapt_gdp,:impactdeathmorbidity, :dead) # per person
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\adapt_gdp_total.csv", adapt_gdp_total)
+
+adapt_pop_gcp = getdataframe(adapt_pop,:impactdeathtemp, :gcpdead) # in millions
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\adapt_pop_gcp.csv", adapt_pop_gcp)
+adapt_pop_total = getdataframe(adapt_pop,:impactdeathmorbidity, :dead) # per person
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\adapt_pop_total.csv", adapt_pop_total)
+
 
 #####################################################################
 # VSLstandard
@@ -283,6 +331,11 @@ VSL_standarda = getdataframe(standard_run,:vslvmorb, :vsl)
 VSL_standardb = unstack(VSL_standarda, :time, :regions, :vsl)
 writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\vslstandard.csv", VSL_standardb)
 writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\t_vslstandard.csv", VSL_standarda)
+
+ypc_standard = getdataframe(standard_run, :vslvmorb, :ypc)
+ypc_standard_t = unstack(ypc_standard, :time, :regions, :ypc)
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\ypcstandard.csv", ypc_standard)
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\t_ypcstandard.csv", ypc_standard_t)
 
 #####################################################################
 # VSLaltered_1 (SET VERSION)
