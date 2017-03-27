@@ -38,6 +38,7 @@
 
     # Other sources of death (GCPdead connected here; does not include additional metrics)
     dead_other = Parameter(index=[time,regions])
+    
     # Other sources of sickness
     sick_other = Parameter(index=[time,regions])
 end
