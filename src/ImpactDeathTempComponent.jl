@@ -63,7 +63,7 @@ function run_timestep(s::impactdeathtemp, t::Int)
         # Calculate deaths; multiply by 1 million to achieve same units as dead in impactdeathmorbidity component
         # HOWEVER do not multiply by 1 million until Results.jl component; if do so here will throw results for
         # impactdeathmorbidity via "dead_other" variable
-        v.gcpdead[t, r] = v.morttempeffect[t, r] * p.population[t, r]
+        v.gcpdead[t, r] = v.morttempeffect[t, r] * p.population[t, r] * 1_000_000
 
         # Calculate cost for strictly GCP data. Divide by 1 billion to have units of $B.
         v.gcpdeadcost[t, r] = (p.vsl[t, r] * v.gcpdead[t, r])/1_000_000_000.0

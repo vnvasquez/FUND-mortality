@@ -148,7 +148,7 @@ function getmarginaldamages1(;emissionyear=2010,parameters=nothing,yearstoaggreg
 end
 
 # Using one ton pulse each year for ten years
-function getmarginaldamages10(;emissionyear=2010,parameters=nothing,yearstoaggregate=1000,gas=:C)
+#=function getmarginaldamages10(;emissionyear=2010,parameters=nothing,yearstoaggregate=1000,gas=:C)
     yearstorun = min(1050, getindexfromyear(emissionyear) + yearstoaggregate)
 
     m1 = getfund(nsteps=yearstorun,params=parameters)
@@ -185,7 +185,7 @@ md1 = DataFrame(marginaldamage1)
 md10 = DataFrame(marginaldamage10)
 
 writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\marginaldamage1.csv",md1)
-writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\marginaldamage10.csv",md10)
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\marginaldamage10.csv",md10)=#
 
 ###################################################################################
 # Marginal with FUND alone
@@ -199,7 +199,7 @@ function getmarginaldamages1(;emissionyear=2010,parameters=nothing,yearstoaggreg
     m2 = getfund(nsteps=yearstorun,params=parameters)
 
     setparameter(m1, :impactdeathmorbidity, :dead_other, zeros(1051,16))
-    setparameter(m1, :impactdeathmorbidity, :dead_other, zeros(1051,16))
+    setparameter(m2, :impactdeathmorbidity, :dead_other, zeros(1051,16))
 
     addcomponent(m2, adder, :marginalemission, before=:climateco2cycle)
     addem = zeros(yearstorun+1)
