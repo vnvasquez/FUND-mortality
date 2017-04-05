@@ -3,7 +3,7 @@
 # may soon change within Mimi to make the structure more robust.
 cd("src")
 #####################################################################
-
+pwd()
 using Mimi
 
 #Load function to construct model
@@ -19,11 +19,17 @@ using DataArrays, DataFrames, Plots, PyPlot, StatPlots, RCall
 # For StatPlots, which is necessary due to DataFrames incompatibility
 gr(size=(400,300))
 
-#=Play with plotting options
-R"install.packages(ggplot2)"
-R"library(ggplot2)"
-testplot = scatter(gcpmortrate_df, :time, :regions)
-regions = [:USA :CAN :WEU :JPK :ANZ :EEU :FSU :MDE :CAM :LAM :SAS :SEA :CHI :MAF :SSA :SIS]=#
+
+#check values - verify units with James
+verify1 = getdataframe(results, :impactdeathtemp, :logypc)
+unstack(verify1, :time, :regions, :logypc)
+
+verify2 = getdataframe(results, :impactdeathtemp, :logpopop)
+unstack(verify2, :time, :regions, :logpopop)
+
+verify3 = getdataframe(results, :climateregional, :temp)
+unstack(verify3, :time, :regions, :temp)
+
 
 #####################################################################
 # GCP Mortality
@@ -176,16 +182,16 @@ end
 
     return marginaldamage10
 end
-
+=#
 # View results
 marginaldamage1 = getmarginaldamages1()
-marginaldamage10 = getmarginaldamages10()
+#marginaldamage10 = getmarginaldamages10()
 
 md1 = DataFrame(marginaldamage1)
-md10 = DataFrame(marginaldamage10)
+#md10 = DataFrame(marginaldamage10)
 
 writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\marginaldamage1.csv",md1)
-writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\marginaldamage10.csv",md10)=#
+#writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\marginaldamage10.csv",md10)
 
 ###################################################################################
 # Marginal with FUND alone
@@ -392,3 +398,9 @@ run(altered2_run)
 VSL_altered2 = getdataframe(results,:vslvmorb, :vsl)
 VSL_altered2 = unstack(VSL_altered2, :time, :regions, :vsl)
 writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\vslaltered2.csv", VSL_altered2)=#
+
+#=Play with plotting options
+R"install.packages(ggplot2)"
+R"library(ggplot2)"
+testplot = scatter(gcpmortrate_df, :time, :regions)
+regions = [:USA :CAN :WEU :JPK :ANZ :EEU :FSU :MDE :CAM :LAM :SAS :SEA :CHI :MAF :SSA :SIS]=#
