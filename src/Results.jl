@@ -3,7 +3,7 @@
 # may soon change within Mimi to make the structure more robust.
 cd("src")
 #####################################################################
-pwd()
+
 using Mimi
 
 #Load function to construct model
@@ -23,6 +23,7 @@ gr(size=(400,300))
 #check values - verify units with James
 verify1 = getdataframe(results, :impactdeathtemp, :logypc)
 unstack(verify1, :time, :regions, :logypc)
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\check_logypc.csv", verify1)
 
 verify2 = getdataframe(results, :impactdeathtemp, :logpopop)
 unstack(verify2, :time, :regions, :logpopop)

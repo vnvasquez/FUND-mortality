@@ -40,16 +40,17 @@ function run_timestep(s::impactdeathtemp, t::Int)
 
     for r in d.regions
 
-        v.logypc[t, r] = log((p.income[t, r] / p.population[t, r]) * 1000.0)
+        v.logypc[t, r] = log((p.income[t, r] / p.population[t, r]) * 1_000.0)                                 # <- income = billions USD'95, population = millions,
+                                                                                                             #    then * 1_000 to even out units
 
-        v.logpopop[t, r] = log(p.populationin1[t, r] / p.area[t, r])                                                # <- simple popop
+        v.logpopop[t, r] = log(p.populationin1[t, r] / p.area[t, r])                                         # <- simple popop, units = people/km^2
 
-        # v.logpopop_new = (populationin1_urban + populationin1_rural) / (area_urban + area_rural)                  #  <- same as simple popop
+        # v.logpopop_new = (populationin1_urban + populationin1_rural) / (area_urban + area_rural)           #  <- same as simple popop
 
         # Calc urban from http://www.naturalearthdata.com/downloads/10m-cultural-vectors/ "Urban Areas"
 
         # logpopop_complex = ((populationin1_urban / area_urban) * (populationin1_urban / populationin1)) +
-        # ((populationin1_rural / area_rural) * (populationin1_rural / populationin1))                              # <- complex: includes urban/rural approximation
+        # ((populationin1_rural / area_rural) * (populationin1_rural / populationin1))                       # <- complex: includes urban/rural approximation
 
 
 
