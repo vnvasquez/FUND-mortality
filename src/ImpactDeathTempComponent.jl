@@ -4,7 +4,9 @@ using Mimi
     regions = Index()
 
     #Variables
+    ypc                = Variable(index=[time,regions])
     logypc             = Variable(index=[time,regions])
+    popop              = Variable(index=[time,regions])
     logpopop           = Variable(index=[time,regions])
     morttempeffect     = Variable(index=[time,regions])
     gcpdead            = Variable(index=[time,regions])
@@ -40,10 +42,14 @@ function run_timestep(s::impactdeathtemp, t::Int)
 
     for r in d.regions
 
-        v.logypc[t, r] = log((p.income[t, r] / p.population[t, r]) * 1_000.0)                                 # <- income = billions USD'95, population = millions,
-                                                                                                             #    then * 1_000 to even out units
+        # Adjusted for inflation: 1995 to 2005 USD https://www.bls.gov/data/inflation_calculator.htm
+        v.ypc[t, r] = ((p.income[t, r] * 1.28) / p.population[t, r]) * 1_000                                 # <- income = billions USD'95, population = millions,
+                                                                                                             #    then *1.28 for inflation and *1_000 to even out units
+        v.logypc[t, r] = log(v.ypc[t, r])
 
-        v.logpopop[t, r] = log(p.populationin1[t, r] / p.area[t, r])                                         # <- simple popop, units = people/km^2
+        v.popop[t, r] = (p.populationin1[t, r] / p.area[t, r])                                               # <- simple popop, units = people/km^2
+
+        v.logpopop[t, r] = log(v.popop[t, r])
 
         # v.logpopop_new = (populationin1_urban + populationin1_rural) / (area_urban + area_rural)           #  <- same as simple popop
 
@@ -57,14 +63,17 @@ function run_timestep(s::impactdeathtemp, t::Int)
         # Using CIL data, this amounts to the change in mortality rate from a baseline of 2001-2010
         # For plotting purposes, this value is referred to as "gcpmortrate"
         # UNITS = deaths per person
-        v.morttempeffect[t, r] = (p.gammatemp1[r] * p.temp[t , r]) + (p.gammatemp2[r] * (p.temp[t, r])^2) +
-                                (p.gammagdppc1[r] * p.temp[t, r] * v.logypc[t, r]) + (p.gammagdppc2[r] * (p.temp[t, r])^2 * v.logypc[t, r]) +
-                                (p.gammapopop1[r] * (p.temp[t, r]) * v.logpopop[t, r]) + (p.gammapopop2[r] * (p.temp[t, r])^2 * v.logpopop[t, r])
+        v.morttempeffect[t, r] = (p.gammatemp1[r] * p.temp[t , r]) +
+                                (p.gammatemp2[r] * p.temp[t, r]^2) +
+                                (p.gammagdppc1[r] * p.temp[t, r] * v.logypc[t, r]) +
+                                (p.gammagdppc2[r] * p.temp[t, r]^2 * v.logypc[t, r]) +
+                                (p.gammapopop1[r] * p.temp[t, r] * v.logpopop[t, r]) +
+                                (p.gammapopop2[r] * p.temp[t, r]^2 * v.logpopop[t, r])
 
         # Calculate deaths; multiply by 1 million to achieve same units as dead in impactdeathmorbidity component
         # HOWEVER do not multiply by 1 million until Results.jl component; if do so here will throw results for
         # impactdeathmorbidity via "dead_other" variable
-        v.gcpdead[t, r] = v.morttempeffect[t, r] * p.population[t, r] * 1_000_000
+        v.gcpdead[t, r] = (v.morttempeffect[t, r] * p.population[t, r] * 1_000_000)
 
         # Calculate cost for strictly GCP data. Divide by 1 billion to have units of $B.
         v.gcpdeadcost[t, r] = (p.vsl[t, r] * v.gcpdead[t, r])/1_000_000_000.0

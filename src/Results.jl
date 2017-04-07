@@ -118,6 +118,11 @@ solo_FUNDrate_unstacked = unstack(solo_FUNDrate, :time, :regions, :deadrate)
 writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\fundrate.csv",solo_FUNDrate_unstacked)
 writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\t_fundrate.csv",solo_FUNDrate)
 
+# View population
+solo_FUNDpop = getdataframe(soloFUND_run,:population, :population)
+solo_FUNDpop_unstacked = unstack(solo_FUNDpop, :time, :regions, :population)
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\fundpop.csv",solo_FUNDpop_unstacked)
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\t_fundpop.csv",solo_FUNDpop)
 
 #####################################################################
 # Marginal Mortality: FUND and GCP Joint
