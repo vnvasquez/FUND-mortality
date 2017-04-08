@@ -11,6 +11,12 @@ include("fund.jl")
 
 #Create model for test run
 results = getfund()
+
+# Set parameters
+setparameter(results, :socioeconomic, :runwithoutdamage, true)
+setparameter(results, :population, :runwithoutpopulationperturbation, true)
+
+# Run
 run(results)
 
 # Call necessary packages

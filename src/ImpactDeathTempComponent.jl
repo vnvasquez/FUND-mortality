@@ -45,11 +45,22 @@ function run_timestep(s::impactdeathtemp, t::Int)
         # Adjusted for inflation: 1995 to 2005 USD https://www.bls.gov/data/inflation_calculator.htm
         v.ypc[t, r] = ((p.income[t, r] * 1.28) / p.population[t, r]) * 1_000                                 # <- income = billions USD'95, population = millions,
                                                                                                              #    then *1.28 for inflation and *1_000 to even out units
-        v.logypc[t, r] = log(v.ypc[t, r])
+        # Freeze at 2001 values to accord with GCP response functions
+        if t < 51
+          v.logypc[t, r] = log(v.ypc[t, r])
+        else
+          v.logypc[t, r] = log(v.ypc[t-1, r])
+        end
 
+        # In addition to being frozen at 2001 values, all outcomes cut off at year 2100 b/c this is the
+        # applicable GCP window (currently)
         v.popop[t, r] = (p.populationin1[t, r] / p.area[t, r])                                               # <- simple popop, units = people/km^2
 
-        v.logpopop[t, r] = log(v.popop[t, r])
+        if t < 51
+          v.logpopop[t, r] = log(v.popop[t, r])
+        else
+          v.logpopop[t, r] = log(v.popop[t-1, r])
+        end
 
         # v.logpopop_new = (populationin1_urban + populationin1_rural) / (area_urban + area_rural)           #  <- same as simple popop
 
