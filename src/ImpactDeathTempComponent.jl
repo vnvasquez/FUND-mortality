@@ -46,8 +46,8 @@ function run_timestep(s::impactdeathtemp, t::Int)
         # Using CIL data, this amounts to the change in mortality rate from a baseline of 2001-2010
         # For plotting purposes, this value is referred to as "gcpmortrate"
         # UNITS = deaths per person
-        v.morttempeffect[t, r] = ((p.gammatemp1[r] * p.temp[t , r]) +
-                                (p.gammatemp2[r] * p.temp[t, r]^2))^(p.gammalogypc[r] * p.logypc[t, r])
+        v.morttempeffect[t, r] = (p.gammatemp1[r] * p.temp[t , r] +
+                                p.gammatemp2[r] * p.temp[t, r]^2) * exp(p.gammalogypc[r] * v.logypc[t, r])
 
         # Calculate deaths; multiply by 1 million to achieve same units as dead in impactdeathmorbidity component
         v.gcpdead[t, r] = (v.morttempeffect[t, r] * p.population[t, r] * 1_000_000)

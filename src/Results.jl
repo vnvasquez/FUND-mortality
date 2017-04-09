@@ -12,9 +12,9 @@ include("fund.jl")
 #Create model for test run
 results = getfund()
 
-# Set parameters
+#= Set parameters
 setparameter(results, :socioeconomic, :runwithoutdamage, true)
-setparameter(results, :population, :runwithoutpopulationperturbation, true)
+setparameter(results, :population, :runwithoutpopulationperturbation, true)=#
 
 # Run
 run(results)
@@ -31,11 +31,8 @@ verify1 = getdataframe(results, :impactdeathtemp, :logypc)
 unstack(verify1, :time, :regions, :logypc)
 writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\check_logypc.csv", verify1)
 
-verify2 = getdataframe(results, :impactdeathtemp, :logpopop)
-unstack(verify2, :time, :regions, :logpopop)
-
-verify3 = getdataframe(results, :climateregional, :temp)
-unstack(verify3, :time, :regions, :temp)
+verify2 = getdataframe(results, :climateregional, :temp)
+unstack(verify2, :time, :regions, :temp)
 
 
 #####################################################################
@@ -99,6 +96,8 @@ soloFUND_run = getfund()
 solomatrix = zeros(1051,16)
 
 setparameter(soloFUND_run, :impactdeathmorbidity, :dead_other, solomatrix)
+#=setparameter(soloFUND_run, :socioeconomic, :runwithoutdamage, true)
+setparameter(soloFUND_run, :population, :runwithoutpopulationperturbation, true)=#
 
 #Run model
 run(soloFUND_run)
