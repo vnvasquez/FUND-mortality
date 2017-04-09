@@ -395,7 +395,7 @@ writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\VSLdifference.csv
 # VSLaltered_2 (FLEXIBLE VERSION)
 #####################################################################
 
-#=VSL altered run (elasticities allowed to vary between 1.5 - or possibly 2.0 - and 0.5)
+VSL altered run (elasticities allowed to vary between 1.5 - or possibly 2.0 - and 0.5)
 altered2_run = getfund()
 
 #Change parameter to fit this case.
@@ -409,8 +409,10 @@ run(altered2_run)
 # View results
 VSL_altered2 = getdataframe(results,:vslvmorb, :vsl)
 VSL_altered2 = unstack(VSL_altered2, :time, :regions, :vsl)
-writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\vslaltered2.csv", VSL_altered2)=#
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\vslaltered2.csv", VSL_altered2)
 
+
+#####################################################################
 #=Play with plotting options
 R"install.packages(ggplot2)"
 R"library(ggplot2)"
