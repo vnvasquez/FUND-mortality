@@ -31,15 +31,13 @@ verify1 = getdataframe(results, :impactdeathtemp, :logypc)
 unstack(verify1, :time, :regions, :logypc)
 writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\check_logypc.csv", verify1)
 
-verify2 = getdataframe(results, :climateregional, :temp)
-unstack(verify2, :time, :regions, :temp)
-
+verify2 = getdataframe(results, :climatedynamics, :temp)
 
 #####################################################################
 # GCP Mortality
 #####################################################################
 
-# GCP rate
+# GCP rate:THESE ARE THE NUMBERS THAT MATCH JR'S RESULTS
 gcpmortrate_df = getdataframe(results,:impactdeathtemp, :morttempeffect)
 gcpmortrate_region_df = unstack(gcpmortrate_df, :time, :regions, :morttempeffect)
 writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\gcpmortrate.csv", gcpmortrate_region_df)
