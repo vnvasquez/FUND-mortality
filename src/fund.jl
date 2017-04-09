@@ -173,7 +173,7 @@ function constructfund(;nsteps=1050)
     connectparameter(m, :vslvmorb, :income, :socioeconomic, :income)
 
     connectparameter(m, :impactdeathtemp, :vsl, :vslvmorb, :vsl)
-    connectparameter(m, :impactdeathtemp, :temp, :climateregional, :temp)
+    connectparameter(m, :impactdeathtemp, :temp, :climatedynamics, :temp)
     connectparameter(m, :impactdeathtemp, :income, :socioeconomic, :income)
     connectparameter(m, :impactdeathtemp, :populationin1, :population, :populationin1)
     connectparameter(m, :impactdeathtemp, :population, :population, :population)
