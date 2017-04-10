@@ -33,6 +33,18 @@ writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\check_logypc.csv"
 
 verify2 = getdataframe(results, :climatedynamics, :temp)
 
+
+
+
+
+VSL = getdataframe(results,:vslvmorb, :vsl)
+unstack(VSL, :time, :regions, :vsl)
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\vsl_flex.csv", VSL)
+
+
+
+
+
 #####################################################################
 # GCP Mortality
 #####################################################################

@@ -15,7 +15,11 @@ using Mimi
     #vslel       = Parameter()
     vslel_high  = Parameter()
     vslel_mid   = Parameter()
-    #vslel_low   = Parameter()
+    vslel_low   = Parameter()
+
+    #terciles
+    #one_third   = Variable(index=[time])
+    #two_third   = Variable(index=[time])
 
     #vmorbbm     = Parameter()
     #vmorbel     = Parameter()
@@ -29,19 +33,29 @@ function run_timestep(s::vslvmorb, t::Int)
     d = s.Dimensions
 
     if t>1
+
         for r in d.regions
 
             # CORRECTED: For discussion, but added ".v" ahead of ypc, and included as variable above.
-            v.ypc[t,r] = p.income[t, r] / p.population[t, r] * 1000.0
+            # Income in billions, population in millions - multiply by 1_000.0 to even out units
+            v.ypc[t,r] = p.income[t, r] / p.population[t, r] * 1_000.0
 
-            # Explicit VSL values of 1.0 and 1.5.
-            # Q: include VSL of 0.5 too? Miguel et al. - would be p.vslel_low. If so, what value for GDP indicator to trigger low?
-            if v.ypc[t, r] < p.vslypc0
+            # Calculate ypc terciles
+            min_ypc, max_ypc = extrema(v.ypc[t,:])
+            one_third = quantile([min_ypc, max_ypc], 1/3)
+            two_third = quantile([min_ypc, max_ypc], 2/3)
+
+            # Assign VSL elasticity values of 0.5, 1.0, 1.5 per Miguel et al.
+            if v.ypc[t,r] <one_third
               v.vsl[t, r] = p.vslbm * (v.ypc[t,r] / p.vslypc0)^p.vslel_high
-            else
-              v.vsl[t, r] = p.vslbm * (v.ypc[t,r] / p.vslypc0)^p.vslel_mid
-            end
 
+            elseif v.ypc[t,r] >one_third && <two_third
+              v.vsl[t, r] = p.vslbm * (v.ypc[t,r] / p.vslypc0)^p.vslel_mid
+
+            else v.ypc[t,r]>two_third
+              v.vsl[t, r] = p.vslbm * (v.ypc[t,r] / p.vslypc0)^p.vslel_low
+
+            end
             #v.vmorb[t, r] = p.vmorbbm * (ypc / p.vmorbypc0)^p.vmorbel
         end
     end
