@@ -49,7 +49,7 @@ function run_timestep(s::vslvmorb, t::Int)
             if v.ypc[t,r] <one_third
               v.vsl[t, r] = p.vslbm * (v.ypc[t,r] / p.vslypc0)^p.vslel_high
 
-            elseif v.ypc[t,r] >one_third && <two_third
+            elseif v.ypc[t,r] >one_third && v.ypc[t,r] <two_third
               v.vsl[t, r] = p.vslbm * (v.ypc[t,r] / p.vslypc0)^p.vslel_mid
 
             else v.ypc[t,r]>two_third
