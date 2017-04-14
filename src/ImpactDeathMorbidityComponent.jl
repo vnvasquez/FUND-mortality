@@ -61,6 +61,7 @@ function run_timestep(s::impactdeathmorbidity, t::Int)
 
             v.yld[t, r] = p.d2dd[r] * p.dengue[t, r] + p.d2ds[r] * p.schisto[t, r] + p.d2dm[r] * p.malaria[t, r] + p.d2dc[r] * p.cardheat[t, r] + p.d2dc[r] * p.cardcold[t, r] + p.d2dr[r] * p.resp[t, r] + p.diasick[t, r] + p.sick_other[t,r]
 
+            # Divide by 1 billion to have units of $B
             v.deadcost[t, r] = (p.vsl[t, r] * v.dead[t, r]) / 1_000_000_000.0
 
             # ADDED: deadrate; nb that multiply population by 1M to accord with units for dead (makes this same as populationin1)
