@@ -49,7 +49,10 @@ function run_timestep(s::vslvmorb, t::Int)
             uppermiddle2 = 12_475.00 * 0.64
             high = 12_475 * 0.64
 
-            # Assign VSL elasticity values of 0.5, 1.0, 1.5, 2.0 per Miguel et al.
+            # NB originally had assigned VSL elasticity values of 0.5, 1.0, 1.5, 2.0 per Hammmitt et al.
+            # Per conversation with DA 4-14-2017, changed data csv values to 1.0 = low and mid, 1.5 = high and highest
+            # for purposes of dry run master's presentation
+            
             if v.ypc[t,r] <= low
               v.vsl[t, r] = p.vslbm * (v.ypc[t,r] / p.vslypc0)^p.vslel_highest
 
