@@ -12,42 +12,23 @@ include("fund.jl")
 #Create model for test run
 results = getfund()
 
+# Set Parameter
+setparameter(results, :vslvmorb, :vslel_highest, 1.5)
+setparameter(results, :vslvmorb, :vslel_high, 1.5)
+setparameter(results, :vslvmorb, :vslel_mid, 1.0)
+setparameter(results, :vslvmorb, :vslel_low, 1.0)
+
 # Run
 run(results)
 
 # Call necessary packages
 using DataArrays, DataFrames
 
-#####################################################################
-# FUND ALONE
-#####################################################################
-
-# Run FUND alone to enable direct comparison  (GCP vs. FUND)
-soloFUND_run = getfund()
-
-#Change parameters to fit this case: replace dead_other (fed by GCP data) with matrix of zeros
-setparameter(soloFUND_run, :impactdeathmorbidity, :dead_other, zeros(1051,16))
-
-#Run model
-run(soloFUND_run)
-
-# Check to make sure it zeroed out GCP
-check1 = println(soloFUND_run[:impactdeathmorbidity, :dead_other])
-
-#FUND dead
-dead_FUND = getdataframe(soloFUND_run,:impactdeathmorbidity, :dead)
-writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\dead_FUND.csv",dead_FUND)
-unstack(dead_FUND, :time, :regions, :dead)
-
-# FUND cost
-cost_FUND = getdataframe(soloFUND_run,:impactdeathmorbidity, :deadcost)
-writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\cost_FUND.csv", cost_FUND)
-unstack(cost_FUND, :time, :regions, :deadcost)
-
-#FUND rate
-mortrate_FUND = getdataframe(soloFUND_run,:impactdeathmorbidity, :deadrate)
-writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\mortrate_FUND.csv",mortrate_FUND)
-unstack(mortrate_FUND, :time, :regions, :deadrate)
+# Verify values for per capita income (to check WB threshold validity)
+verify1 = getdataframe(results, :vslvmorb, :ypc)
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\verify_ypc.csv", verify1)
+unstack(verify1, :time, :regions, :ypc)
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\verify_ypcT.csv", verify1)
 
 #####################################################################
 # GCP ALONE
@@ -56,17 +37,27 @@ unstack(mortrate_FUND, :time, :regions, :deadrate)
 # GCP rate:THESE ARE THE NUMBERS THAT MATCH JR'S RESULTS WHEN MULTIPLIED BY 100_000.00
 mortrate_GCP = getdataframe(results,:impactdeathtemp, :morttempeffect)
 writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\mortrate_GCP.csv", mortrate_GCP)
-unstack(mortrate_GCP, :time, :regions, :morttempeffect)
+mortrate_GCP_regional = unstack(mortrate_GCP, :time, :regions, :morttempeffect)
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\mortrate_GCP_regional.csv", mortrate_GCP_regional)
 
 # GCP dead
 dead_GCP = getdataframe(results,:impactdeathtemp, :gcpdead)
 writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\dead_GCP.csv", dead_GCP)
-unstack(dead_GCP, :time, :regions, :gcpdead)
+dead_GCP_regional = unstack(dead_GCP, :time, :regions, :gcpdead)
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\dead_GCP_regional.csv", dead_GCP_regional)
 
 # GCP cost
 cost_GCP = getdataframe(results,:impactdeathtemp, :gcpdeadcost)
 writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\cost_GCP.csv", cost_GCP)
-unstack(cost_GCP, :time, :regions, :gcpdeadcost)
+cost_GCP_regional = unstack(cost_GCP, :time, :regions, :gcpdeadcost)
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\cost_GCP_regional.csv", cost_GCP_regional)
+
+# GCP VSLs @ 1.5 flex (hardcoded into data csv in current versin of model)
+vsl_GCP = getdataframe(results,:vslvmorb, :vsl)
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\vsl_GCP.csv", vsl_GCP)
+unstack(vsl_GCP, :time, :regions, :vsl)
+vsl_GCP_regional = unstack(vsl_GCP, :time, :regions, :vsl)
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\vsl_GCP_regional.csv", vsl_GCP_regional)
 
 #####################################################################
 # Total (FUND + GCP)
@@ -89,6 +80,57 @@ cost_combo = getdataframe(results,:impactdeathmorbidity, :deadcost)
 writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\cost_combo.csv", cost_combo)
 cost_combo_regional = unstack(cost_combo, :time, :regions, :deadcost)
 writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\cost_combo_regional.csv", cost_combo_regional)
+
+# Total VSLs @ 1.5 flex (hardcoded into data csv in current versin of model)
+vsl_combo = getdataframe(results,:vslvmorb, :vsl)
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\vsl_combo.csv", vsl_combo)
+vsl_combo_regional = unstack(vsl_combo, :time, :regions, :vsl)
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\vsl_combo_regional.csv", vsl_combo_regional)
+
+#####################################################################
+# FUND ALONE
+#####################################################################
+
+# Run FUND alone to enable direct comparison  (GCP vs. FUND)
+soloFUND_run = getfund()
+
+#Change parameters to fit this case: replace dead_other (fed by GCP data) with matrix of zeros
+setparameter(soloFUND_run, :impactdeathmorbidity, :dead_other, zeros(1051,16))
+# Double check 1.5 values
+setparameter(soloFUND_run, :vslvmorb, :vslel_highest, 1.5)
+setparameter(soloFUND_run, :vslvmorb, :vslel_high, 1.5)
+setparameter(soloFUND_run, :vslvmorb, :vslel_mid, 1.0)
+setparameter(soloFUND_run, :vslvmorb, :vslel_low, 1.0)
+
+#Run model
+run(soloFUND_run)
+
+# Check to make sure it zeroed out GCP
+check1 = println(soloFUND_run[:impactdeathmorbidity, :dead_other])
+
+#FUND dead
+dead_FUND = getdataframe(soloFUND_run,:impactdeathmorbidity, :dead)
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\dead_FUND.csv",dead_FUND)
+dead_FUND_regional = unstack(dead_FUND, :time, :regions, :dead)
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\dead_FUND_regional.csv",dead_FUND_regional)
+
+# FUND cost
+cost_FUND = getdataframe(soloFUND_run,:impactdeathmorbidity, :deadcost)
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\cost_FUND.csv", cost_FUND)
+cost_FUND_regional = unstack(cost_FUND, :time, :regions, :deadcost)
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\cost_FUND_regional.csv", cost_FUND_regional)
+
+#FUND rate
+mortrate_FUND = getdataframe(soloFUND_run,:impactdeathmorbidity, :deadrate)
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\mortrate_FUND.csv",mortrate_FUND)
+mortrate_FUND_regional = unstack(mortrate_FUND, :time, :regions, :deadrate)
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\mortrate_FUND_regional.csv",mortrate_FUND_regional)
+
+# FUND VSLs @ 1.5 flex (hardcoded into data csv in current versin of model)
+vsl_FUND = getdataframe(soloFUND_run,:vslvmorb, :vsl)
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\vsl_FUND.csv", vsl_FUND)
+vsl_FUND_regional = unstack(vsl_FUND, :time, :regions, :vsl)
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\vsl_FUND_regional.csv", vsl_FUND_regional)
 
 #####################################################################
 # VSL: 1.0 for all - FUND
@@ -200,6 +242,45 @@ writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\VSL
 VSL_combo05costT = unstack(VSL_combo05cost, :time, :regions, :deadcost)
 writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\VSL_combo05costT.csv", VSL_combo05costT)
 
+#####################################################################
+# VSL: Comparing effect of elasticities across regions
+#####################################################################
+
+# FUND 1.5flex vs 1.0
+VSL_elastdiff = fund10_run[:vslvmorb, :vsl] .- soloFUND_run[:vslvmorb, :vsl]
+VSL_elastpercentchange = (VSL_elastdiff ./ fund10_run[:vslvmorb, :vsl]) * 100
+VSL_elastdiff = DataFrame(VSL_elastdiff)
+VSL_elastpercentchange = DataFrame(VSL_elastpercentchange)
+
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\VSL_elastdiff_15v10.csv", VSL_elastdiff)
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\VSL_elastpercentchange_15v10.csv", VSL_elastpercentchange)
+
+# FUND 0.5 vs 1.0
+VSL_elastdiff = fund05_run[:vslvmorb, :vsl] .- fund10_run[:vslvmorb, :vsl]
+VSL_elastpercentchange = (VSL_elastdiff ./ fund10_run[:vslvmorb, :vsl]) * 100
+VSL_elastdiff = DataFrame(VSL_elastdiff)
+VSL_elastpercentchange = DataFrame(VSL_elastpercentchange)
+
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\VSL_elastdiff_05v10.csv", VSL_elastdiff)
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\VSL_elastpercentchange_05v10.csv", VSL_elastpercentchange)
+
+# combo1.5 vs 1.0
+VSL_elastdiff = results[:vslvmorb, :vsl] .- combo10_run[:vslvmorb, :vsl]
+VSL_elastpercentchange = (VSL_elastdiff ./ combo10_run[:vslvmorb, :vsl]) * 100
+VSL_elastdiff = DataFrame(VSL_elastdiff)
+VSL_elastpercentchange = DataFrame(VSL_elastpercentchange)
+
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\VSL_elastdiff_15v10_combo.csv", VSL_elastdiff)
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\VSL_elastpercentchange_15v10_combo.csv", VSL_elastpercentchange)
+
+# Combo 0.5 vs 1.0
+VSL_elastdiff = combo05_run[:vslvmorb, :vsl] .- combo10_run[:vslvmorb, :vsl]
+VSL_elastpercentchange = (VSL_elastdiff ./ combo10_run[:vslvmorb, :vsl]) * 100
+VSL_elastdiff = DataFrame(VSL_elastdiff)
+VSL_elastpercentchange = DataFrame(VSL_elastpercentchange)
+
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\VSL_elastdiff_05v10_combo.csv", VSL_elastdiff)
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\VSL_elastpercentchange_05v10_combo.csv", VSL_elastpercentchange)
 
 #####################################################################
 # VSL: Extremely Flexible - FUND
@@ -229,6 +310,7 @@ unstack(VSL_fundflexvalue, :time, :regions, :vsl)
 VSL_fundflexcost = getdataframe(fundflex_run,:impactdeathmorbidity, :deadcost)
 writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\VSL_fundflexcost.csv", VSL_fundflexcost)
 unstack(VSL_fundflexcost, :time, :regions, :deadcost)
+
 
 #####################################################################
 # VSL: Extremely Flexible - COMBO

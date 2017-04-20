@@ -12,8 +12,12 @@ include("fund.jl")
 #Create model for test run
 results = getfund()
 
-#= Set parameters
-setparameter(results, :socioeconomic, :runwithoutdamage, true)
+# Set parameters
+setparameter(results, :vslvmorb, :vslel_highest, 1.5)
+setparameter(results, :vslvmorb, :vslel_high, 1.5)
+setparameter(results, :vslvmorb, :vslel_mid, 1.0)
+setparameter(results, :vslvmorb, :vslel_low, 1.0)
+#=setparameter(results, :socioeconomic, :runwithoutdamage, true)
 setparameter(results, :population, :runwithoutpopulationperturbation, true)=#
 
 # Run
@@ -44,12 +48,14 @@ unstack(verify3, :time, :regions, :population)
 # GCP rate:THESE ARE THE NUMBERS THAT MATCH JR'S RESULTS WHEN MULTIPLIED BY 100_000.00
 mortrate_GCP = getdataframe(results,:impactdeathtemp, :morttempeffect)
 writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\mortrate_GCP.csv", mortrate_GCP)
-unstack(mortrate_GCP, :time, :regions, :morttempeffect)
+mortrate_GCP_regional = unstack(mortrate_GCP, :time, :regions, :morttempeffect)
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\mortrate_GCP_regional.csv", mortrate_GCP_regional)
 
 # GCP dead
 dead_GCP = getdataframe(results,:impactdeathtemp, :gcpdead)
 writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\dead_GCP.csv", dead_GCP)
-unstack(dead_GCP, :time, :regions, :gcpdead)
+dead_GCP_regional = unstack(dead_GCP, :time, :regions, :gcpdead)
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\dead_GCP_regional.csv", dead_GCP_regional)
 
 # GCP cost
 cost_GCP = getdataframe(results,:impactdeathtemp, :gcpdeadcost)
@@ -87,7 +93,10 @@ soloFUND_run = getfund()
 
 #Change parameters to fit this case: replace dead_other (fed by GCP data) with matrix of zeros
 setparameter(soloFUND_run, :impactdeathmorbidity, :dead_other, zeros(1051,16))
-
+setparameter(soloFUND_run, :vslvmorb, :vslel_highest, 1.5)
+setparameter(soloFUND_run, :vslvmorb, :vslel_high, 1.5)
+setparameter(soloFUND_run, :vslvmorb, :vslel_mid, 1.0)
+setparameter(soloFUND_run, :vslvmorb, :vslel_low, 1.0)
 #Run model
 run(soloFUND_run)
 
@@ -98,17 +107,21 @@ check2 = println(soloFUND_run[:population, :population])
 #FUND dead
 dead_FUND = getdataframe(soloFUND_run,:impactdeathmorbidity, :dead)
 writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\dead_FUND.csv",dead_FUND)
-unstack(dead_FUND, :time, :regions, :dead)
+dead_FUND_regional = unstack(dead_FUND, :time, :regions, :dead)
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\dead_FUND_regional.csv",dead_FUND_regional)
 
 # FUND cost
 cost_FUND = getdataframe(soloFUND_run,:impactdeathmorbidity, :deadcost)
 writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\cost_FUND.csv", cost_FUND)
-unstack(cost_FUND, :time, :regions, :deadcost)
+cost_FUND_regional = unstack(cost_FUND, :time, :regions, :deadcost)
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\cost_FUND_regional.csv", cost_FUND_regional)
 
 #FUND rate
 mortrate_FUND = getdataframe(soloFUND_run,:impactdeathmorbidity, :deadrate)
 writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\mortrate_FUND.csv",mortrate_FUND)
-unstack(mortrate_FUND, :time, :regions, :deadrate)
+mortrate_FUND_regional = unstack(mortrate_FUND, :time, :regions, :deadrate)
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\mortrate_FUND_regional.csv",mortrate_FUND_regional)
+
 
 #####################################################################
 # Marginal Damages
@@ -309,6 +322,34 @@ writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\VSL_percentchange
 writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\VSL_difference.csv", VSLplotdifference)
 
 #####################################################################
+# Monte Carlo Simulation: Use PAGE as basis
+#####################################################################
+
+#=
+include("getpagefunction.jl")
+ getpage()
+ run(m)
+-temp=m[:ClimateTemperature,:rt_g_globaltemperature][10]
++temp=[m[:ClimateTemperature,:rt_g_globaltemperature][10]]
+
+ #Define uncertin parameters based on PAGE 2009 documentation
+ uncertain_params=Dict()
+-uncertain_params[:res_CO2atmlifetime]=TriangularDist(50., 100., 70.)
++uncertain_params[:co2cycle,:res_CO2atmlifetime]=TriangularDist(50., 100., 70.)
+
+-nit=2
+-for i in 1:nit
+-    for (p_name, p_dist) in uncertain_params
++nit=50
++@time for i in 1:nit
++    for ((p_comp, p_name), p_dist) in uncertain_params
+         v = rand(p_dist)
+-        setparameter(m, p_name, v)
++        setparameter(m, p_comp,p_name, v)
+     end
+     run(m)
+     push!(temp, m[:ClimateTemperature,:rt_g_globaltemperature][10]) =#
+
 
 #=Play with plotting options
 R"install.packages(ggplot2)"
