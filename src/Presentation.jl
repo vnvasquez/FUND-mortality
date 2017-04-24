@@ -12,11 +12,10 @@ include("fund.jl")
 #Create model for test run
 results = getfund()
 
-# Set Parameter
-setparameter(results, :vslvmorb, :vslel_highest, 1.5)
-setparameter(results, :vslvmorb, :vslel_high, 1.5)
-setparameter(results, :vslvmorb, :vslel_mid, 1.0)
-setparameter(results, :vslvmorb, :vslel_low, 1.0)
+# Zero out double counted elements for integrated model
+setparameter(results,:impactdeathmorbidity,:cardheat, zeros(1051,16))
+setparameter(results,:impactdeathmorbidity,:cardcold, zeros(1051,16))
+setparameter(results,:impactdeathmorbidity,:resp, zeros(1051,16))
 
 # Run
 run(results)
@@ -24,14 +23,15 @@ run(results)
 # Call necessary packages
 using DataArrays, DataFrames
 
-# Verify values for per capita income (to check WB threshold validity)
-verify1 = getdataframe(results, :vslvmorb, :ypc)
-writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\verify_ypc.csv", verify1)
-unstack(verify1, :time, :regions, :ypc)
-writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\verify_ypcT.csv", verify1)
+# Extract populationin1 to use for constructing global mortrate (need population weighted)
+results_pop = getdataframe(results, :population, :populationin1)
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\results_pop.csv", results_pop)
+results_popT = unstack(results_pop, :time, :regions, :populationin1)
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\results_popcT.csv", results_popT)
+
 
 #####################################################################
-# GCP ALONE
+# GCP ALONE: VSL FLEX 1.5
 #####################################################################
 
 # GCP rate:THESE ARE THE NUMBERS THAT MATCH JR'S RESULTS WHEN MULTIPLIED BY 100_000.00
@@ -60,7 +60,7 @@ vsl_GCP_regional = unstack(vsl_GCP, :time, :regions, :vsl)
 writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\vsl_GCP_regional.csv", vsl_GCP_regional)
 
 #####################################################################
-# Total (FUND + GCP)
+# Integrated (FUND + GCP): VSL FLEX 1.5
 #####################################################################
 
 #Total rate
@@ -88,7 +88,7 @@ vsl_combo_regional = unstack(vsl_combo, :time, :regions, :vsl)
 writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\vsl_combo_regional.csv", vsl_combo_regional)
 
 #####################################################################
-# FUND ALONE
+# FUND ALONE: VSL FLEX 1.5
 #####################################################################
 
 # Run FUND alone to enable direct comparison  (GCP vs. FUND)
@@ -96,17 +96,20 @@ soloFUND_run = getfund()
 
 #Change parameters to fit this case: replace dead_other (fed by GCP data) with matrix of zeros
 setparameter(soloFUND_run, :impactdeathmorbidity, :dead_other, zeros(1051,16))
-# Double check 1.5 values
-setparameter(soloFUND_run, :vslvmorb, :vslel_highest, 1.5)
-setparameter(soloFUND_run, :vslvmorb, :vslel_high, 1.5)
-setparameter(soloFUND_run, :vslvmorb, :vslel_mid, 1.0)
-setparameter(soloFUND_run, :vslvmorb, :vslel_low, 1.0)
 
 #Run model
 run(soloFUND_run)
 
 # Check to make sure it zeroed out GCP
 check1 = println(soloFUND_run[:impactdeathmorbidity, :dead_other])
+
+# Extract populationin1 to use for constructing global mortrate (need population weighted)
+soloFUND_pop = getdataframe(soloFUND_run, :population, :populationin1)
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\soloFUND_pop.csv", soloFUND_pop)
+soloFUND_popT = unstack(soloFUND_pop, :time, :regions, :populationin1)
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\soloFUND_popcT.csv", soloFUND_popT)
+
+###
 
 #FUND dead
 dead_FUND = getdataframe(soloFUND_run,:impactdeathmorbidity, :dead)
@@ -148,6 +151,14 @@ setparameter(fund10_run, :impactdeathmorbidity, :dead_other, zeros(1051,16))
 #Run model
 run(fund10_run)
 
+# Extract populationin1 to use for constructing global mortrate (need population weighted)
+fund10_pop = getdataframe(fund10_run, :population, :populationin1)
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\fund10_pop.csv",fund10_pop)
+fund10_popT = unstack(fund10_pop, :time, :regions, :populationin1)
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\fund10_popcT.csv", fund10_popT)
+
+###
+
 # View VSLs
 VSL_fund10value = getdataframe(fund10_run,:vslvmorb, :vsl)
 writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\VSL_fund10value.csv", VSL_fund10value)
@@ -172,8 +183,21 @@ setparameter(combo10_run, :vslvmorb, :vslel_high, 1.0)
 setparameter(combo10_run, :vslvmorb, :vslel_mid, 1.0)
 setparameter(combo10_run, :vslvmorb, :vslel_low, 1.0)
 
+# Zero out double counted elements for integrated model
+setparameter(combo10_run,:impactdeathmorbidity,:cardheat, zeros(1051,16))
+setparameter(combo10_run,:impactdeathmorbidity,:cardcold, zeros(1051,16))
+setparameter(combo10_run,:impactdeathmorbidity,:resp, zeros(1051,16))
+
 #Run model
 run(combo10_run)
+
+# Extract populationin1 to use for constructing global mortrate (need population weighted)
+combo10_pop = getdataframe(combo10_run, :population, :populationin1)
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\combo10_pop.csv",combo10_pop)
+combo10_popT = unstack(combo10_pop, :time, :regions, :populationin1)
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\combo10_popcT.csv", combo10_popT)
+
+###
 
 # View VSLs
 VSL_combo10value = getdataframe(combo10_run,:vslvmorb, :vsl)
@@ -203,6 +227,14 @@ setparameter(fund05_run, :impactdeathmorbidity, :dead_other, zeros(1051,16))
 #Run model
 run(fund05_run)
 
+# Extract populationin1 to use for constructing global mortrate (need population weighted)
+fund05_pop = getdataframe(fund05_run, :population, :populationin1)
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\fund05_pop.csv",fund05_pop)
+fund05_popT = unstack(fund05_pop, :time, :regions, :populationin1)
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\fund05_popcT.csv", fund05_popT)
+
+###
+
 # View VSLs
 VSL_fund05value = getdataframe(fund05_run,:vslvmorb, :vsl)
 writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\VSL_fund05value.csv", VSL_fund05value)
@@ -227,8 +259,21 @@ setparameter(combo05_run, :vslvmorb, :vslel_high, 0.5)
 setparameter(combo05_run, :vslvmorb, :vslel_mid, 0.5)
 setparameter(combo05_run, :vslvmorb, :vslel_low, 0.5)
 
+# Zero out double counted elements for integrated model
+setparameter(combo05_run,:impactdeathmorbidity,:cardheat, zeros(1051,16))
+setparameter(combo05_run,:impactdeathmorbidity,:cardcold, zeros(1051,16))
+setparameter(combo05_run,:impactdeathmorbidity,:resp, zeros(1051,16))
+
 #Run model
 run(combo05_run)
+
+# Extract populationin1 to use for constructing global mortrate (need population weighted)
+combo05_pop = getdataframe(combo05_run, :population, :populationin1)
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\combo05_pop.csv",combo05_pop)
+combo05_popT = unstack(combo05_pop, :time, :regions, :populationin1)
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\combo05_popcT.csv", combo05_popT)
+
+###
 
 # View VSLs
 VSL_combo05value = getdataframe(combo05_run,:vslvmorb, :vsl)
@@ -281,91 +326,3 @@ VSL_elastpercentchange = DataFrame(VSL_elastpercentchange)
 
 writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\VSL_elastdiff_05v10_combo.csv", VSL_elastdiff)
 writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\VSL_elastpercentchange_05v10_combo.csv", VSL_elastpercentchange)
-
-#####################################################################
-# VSL: Extremely Flexible - FUND
-#####################################################################
-
-# Here, allow elasticities vary according to ypc value using 4 thresholds.
-# This is implemented directly in the new component, so just need to call
-# and run a fresh version of the model
-
-# NB Set GCP values to zero to view effect on FUND alone
-
-# Call model
-fundflex_run = getfund()
-
-# Set parameters
-setparameter(fundflex_run, :impactdeathmorbidity, :dead_other, zeros(1051,16))
-
-# Run model
-run(fundflex_run)
-
-# View VSLs
-VSL_fundflexvalue = getdataframe(fundflex_run,:vslvmorb, :vsl)
-writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\VSL_fundflexvalue.csv", VSL_fundflexvalue)
-unstack(VSL_fundflexvalue, :time, :regions, :vsl)
-
-# View cost
-VSL_fundflexcost = getdataframe(fundflex_run,:impactdeathmorbidity, :deadcost)
-writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\VSL_fundflexcost.csv", VSL_fundflexcost)
-unstack(VSL_fundflexcost, :time, :regions, :deadcost)
-
-
-#####################################################################
-# VSL: Extremely Flexible - COMBO
-#####################################################################
-
-# Here, allow elasticities vary according to ypc value using 4 thresholds.
-# This is implemented directly in the new component, so just need to call
-# and run a fresh version of the model
-
-# Call model
-comboflex_run = getfund()
-
-# Run model
-run(comboflex_run)
-
-# View VSLs
-VSL_comboflexvalue = getdataframe(comboflex_run,:vslvmorb, :vsl)
-writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\VSL_comboflexvalue.csv", VSL_comboflexvalue)
-unstack(VSL_comboflexvalue, :time, :regions, :vsl)
-
-# View cost
-VSL_comboflexcost = getdataframe(comboflex_run,:impactdeathmorbidity, :deadcost)
-writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\VSL_comboflexcost.csv", VSL_comboflexcost)
-unstack(VSL_comboflexcost, :time, :regions, :deadcost)
-
-#####################################################################
-# Test Dynamic Vulnerability
-#####################################################################
-
-# establish test models
-adapt_basecase = getfund()
-adapt_temp = getfund()
-adapt_gdp = getfund()
-
-# Change parameter to fit these cases
-# Recall, regressions from GCP team furnished 1 valuue per region: hence zeros(16)
-setparameter(adapt_temp, :impactdeathtemp, :gammatemp1, zeros(16))
-setparameter(adapt_temp, :impactdeathtemp, :gammatemp2, zeros(16))
-setparameter(adapt_gdp, :impactdeathtemp, :gammalogypc, zeros(16))
-
-#Run model
-run(adapt_basecase)
-run(adapt_temp)
-run(adapt_gdp)
-
-# Base case
-adapt_baseGCP = getdataframe(adapt_basecase,:impactdeathtemp, :gcpdead)
-writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\adapt_baseGCP.csv", adapt_baseGCP)
-
-adapt_baseCOMBO = getdataframe(adapt_basecase,:impactdeathmorbidity, :dead)
-writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\adapt_baseCOMBO.csv", adapt_baseCOMBO)
-
-# Without gdp: testing dynamic vulnerability
-adapt_gdpGCP = getdataframe(adapt_gdp,:impactdeathtemp, :gcpdead)
-writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\adapt_gdpGCP.csv", adapt_gdpGCP)
-
-adapt_gdpCOMBO = getdataframe(adapt_gdp,:impactdeathmorbidity, :dead)
-writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\adapt_gdpCOMBO.csv", adapt_gdpCOMBO)

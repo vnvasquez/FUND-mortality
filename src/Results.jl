@@ -4,7 +4,15 @@
 cd("src")
 #####################################################################
 
+# Call necessary packages
 using Mimi
+using DataArrays, DataFrames, Plots, PyPlot, StatPlots, RCall
+# For StatPlots, which is necessary due to DataFrames incompatibility
+gr(size=(400,300))
+
+######################################################################
+# Integrated Model: Rates, Total Dead, Costs
+######################################################################
 
 #Load function to construct model
 include("fund.jl")
@@ -12,59 +20,28 @@ include("fund.jl")
 #Create model for test run
 results = getfund()
 
-# Set parameters
-setparameter(results, :vslvmorb, :vslel_highest, 1.5)
-setparameter(results, :vslvmorb, :vslel_high, 1.5)
-setparameter(results, :vslvmorb, :vslel_mid, 1.0)
-setparameter(results, :vslvmorb, :vslel_low, 1.0)
+# Zero out double counted elements for integrated model
+setparameter(results,:impactdeathmorbidity,:cardheat, zeros(1051,16))
+setparameter(results,:impactdeathmorbidity,:cardcold, zeros(1051,16))
+setparameter(results,:impactdeathmorbidity,:resp, zeros(1051,16))
 #=setparameter(results, :socioeconomic, :runwithoutdamage, true)
 setparameter(results, :population, :runwithoutpopulationperturbation, true)=#
 
 # Run
 run(results)
 
-# Call necessary packages
-using DataArrays, DataFrames, Plots, PyPlot, StatPlots, RCall
-
-# For StatPlots, which is necessary due to DataFrames incompatibility
-gr(size=(400,300))
-
 #check values
 verify1 = getdataframe(results, :impactdeathtemp, :ypc)
 writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\verify_ypc.csv", verify1)
 unstack(verify1, :time, :regions, :ypc)
 
-verify2 = getdataframe(results, :climatedynamics, :temp)
-writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\verify_temp.csv", verify2)
+# Extract populationin1 to use for constructing global mortrate (need population weighted)
+results_pop = getdataframe(results, :population, :populationin1)
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\results_pop.csv",results_pop)
+results_popT = unstack(results_pop, :time, :regions, :populationin1)
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\results_popcT.csv", results_popT)
 
-verify3 = getdataframe(results,:population, :population)
-writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\verify_pop.csv", verify3)
-unstack(verify3, :time, :regions, :population)
-
-#####################################################################
-# GCP
-#####################################################################
-
-# GCP rate:THESE ARE THE NUMBERS THAT MATCH JR'S RESULTS WHEN MULTIPLIED BY 100_000.00
-mortrate_GCP = getdataframe(results,:impactdeathtemp, :morttempeffect)
-writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\mortrate_GCP.csv", mortrate_GCP)
-mortrate_GCP_regional = unstack(mortrate_GCP, :time, :regions, :morttempeffect)
-writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\mortrate_GCP_regional.csv", mortrate_GCP_regional)
-
-# GCP dead
-dead_GCP = getdataframe(results,:impactdeathtemp, :gcpdead)
-writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\dead_GCP.csv", dead_GCP)
-dead_GCP_regional = unstack(dead_GCP, :time, :regions, :gcpdead)
-writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\dead_GCP_regional.csv", dead_GCP_regional)
-
-# GCP cost
-cost_GCP = getdataframe(results,:impactdeathtemp, :gcpdeadcost)
-writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\cost_GCP.csv", cost_GCP)
-unstack(cost_GCP, :time, :regions, :gcpdeadcost)
-
-#####################################################################
-# Total (FUND + GCP)
-#####################################################################
+###
 
 #Total rate
 mortrate_combo = getdataframe(results,:impactdeathmorbidity, :deadrate)
@@ -85,7 +62,28 @@ cost_combo_regional = unstack(cost_combo, :time, :regions, :deadcost)
 writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\cost_combo_regional.csv", cost_combo_regional)
 
 #####################################################################
-# FUND
+# GCP Model: Rates, Total Dead, Costs
+#####################################################################
+
+# GCP rate:THESE ARE THE NUMBERS THAT MATCH JR'S RESULTS WHEN MULTIPLIED BY 100_000.00
+mortrate_GCP = getdataframe(results,:impactdeathtemp, :morttempeffect)
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\mortrate_GCP.csv", mortrate_GCP)
+mortrate_GCP_regional = unstack(mortrate_GCP, :time, :regions, :morttempeffect)
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\mortrate_GCP_regional.csv", mortrate_GCP_regional)
+
+# GCP dead
+dead_GCP = getdataframe(results,:impactdeathtemp, :gcpdead)
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\dead_GCP.csv", dead_GCP)
+dead_GCP_regional = unstack(dead_GCP, :time, :regions, :gcpdead)
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\dead_GCP_regional.csv", dead_GCP_regional)
+
+# GCP cost
+cost_GCP = getdataframe(results,:impactdeathtemp, :gcpdeadcost)
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\cost_GCP.csv", cost_GCP)
+unstack(cost_GCP, :time, :regions, :gcpdeadcost)
+
+#####################################################################
+# FUND Model: Rates, Total Dead, Costs
 #####################################################################
 
 # Run FUND alone to enable direct comparison  (GCP vs. FUND)
@@ -93,10 +91,7 @@ soloFUND_run = getfund()
 
 #Change parameters to fit this case: replace dead_other (fed by GCP data) with matrix of zeros
 setparameter(soloFUND_run, :impactdeathmorbidity, :dead_other, zeros(1051,16))
-setparameter(soloFUND_run, :vslvmorb, :vslel_highest, 1.5)
-setparameter(soloFUND_run, :vslvmorb, :vslel_high, 1.5)
-setparameter(soloFUND_run, :vslvmorb, :vslel_mid, 1.0)
-setparameter(soloFUND_run, :vslvmorb, :vslel_low, 1.0)
+
 #Run model
 run(soloFUND_run)
 
@@ -124,7 +119,7 @@ writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\mortrate_FUND_reg
 
 
 #####################################################################
-# Marginal Damages
+# Marginal Damages - INTEGRATED MODEL
 #####################################################################
 # Compute derivatives using finite differencing scheme
 
@@ -136,6 +131,15 @@ function getmarginaldamages1(;emissionyear=2010,parameters=nothing,yearstoaggreg
 
     m1 = getfund(nsteps=yearstorun,params=parameters)
     m2 = getfund(nsteps=yearstorun,params=parameters)
+
+    # Zero out double counted elements for integrated model in both runs
+    setparameter(m1,:impactdeathmorbidity,:cardheat, zeros(1051,16))
+    setparameter(m1,:impactdeathmorbidity,:cardcold, zeros(1051,16))
+    setparameter(m1,:impactdeathmorbidity,:resp, zeros(1051,16))
+
+    setparameter(m2,:impactdeathmorbidity,:cardheat, zeros(1051,16))
+    setparameter(m2,:impactdeathmorbidity,:cardcold, zeros(1051,16))
+    setparameter(m2,:impactdeathmorbidity,:resp, zeros(1051,16))
 
     # Add pulse only to second model run
     addcomponent(m2, adder, :marginalemission, before=:climateco2cycle)
@@ -163,12 +167,60 @@ function getmarginaldamages1(;emissionyear=2010,parameters=nothing,yearstoaggreg
 end
 
 # View results
-marginaldamage1 = getmarginaldamages1()
-marginal_combo = DataFrame(marginaldamage1)
+marginaldamage = getmarginaldamages1()
+marginal_combo = DataFrame(marginaldamage)
 writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\marginal_combo.csv", marginal_combo)
 
+#####################################################################
+# SCC - INTEGRATED MODEL
+#####################################################################
+
+function marginaldamage3(;emissionyear=2010,parameters=nothing,yearstoaggregate=1000,gas=:C,useequityweights=false,eta=1.0,prtp=0.001)
+    yearstorun = min(1050, getindexfromyear(emissionyear) + yearstoaggregate)
+
+    m1, m2 = getmarginalmodels(emissionyear=emissionyear, parameters=parameters,yearstorun=yearstorun,gas=gas)
+
+    damage1 = m1[:impactaggregation,:loss]
+    # Take out growth effect effect of run 2 by transforming
+    # the damage from run 2 into % of GDP of run 2, and then
+    # multiplying that with GDP of run 1
+    damage2 = m2[:impactaggregation,:loss]./m2[:socioeconomic,:income].*m1[:socioeconomic,:income]
+
+    # Calculate the marginal damage between run 1 and 2 for each
+    # year/region
+    marginaldamage = (damage2.-damage1)/10000000.0
+
+    ypc = m1[:socioeconomic,:ypc]
+
+    df = zeros(yearstorun+1,16)
+    if !useequityweights
+        for r=1:16
+            x = 1.
+            for t=getindexfromyear(emissionyear):yearstorun
+                df[t,r] = x
+                gr = (ypc[t,r]-ypc[t-1,r])/ypc[t-1,r]
+                x = x / (1. + prtp + eta * gr)
+            end
+        end
+    else
+        globalypc = m1[:socioeconomic,:globalypc]
+        df = float64([t>=getindexfromyear(emissionyear) ? (globalypc[getindexfromyear(emissionyear)]/ypc[t,r])^eta / (1.0+prtp)^(t-getindexfromyear(emissionyear)) : 0.0 for t=1:yearstorun,r=1:16])
+    end
+
+    scc = sum(marginaldamage[2:end,:].*df[2:end,:])
+
+    return scc
+end
+
+# View results
+scc = marginaldamage3()
+scc_combo = DataFrame(scc)
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\scc_combo.csv", scc_combo)
+
+
+
 ###################################################################################
-# Marginal with FUND alone
+# Marginal Damages - FUND MODEL ALONE
 ###################################################################################
 
 # Using one ton pulse for single year
@@ -207,148 +259,51 @@ function getmarginaldamages1(;emissionyear=2010,parameters=nothing,yearstoaggreg
     return marginaldamage1
 end
 
-# View results
-fund_marginal1 = getmarginaldamages1()
-marginal_FUND = DataFrame(fund_marginal1)
-writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\marginal_FUND.csv",marginal_FUND)
 
 #####################################################################
-# Test Dynamic Vulnerability
+# SCC - FUND MODEL ALONE
 #####################################################################
 
-# establish test models
-adapt_basecase = getfund()
-adapt_temp = getfund()
-adapt_gdp = getfund()
+function marginaldamage3(;emissionyear=2010,parameters=nothing,yearstoaggregate=1000,gas=:C,useequityweights=false,eta=1.0,prtp=0.001)
+    yearstorun = min(1050, getindexfromyear(emissionyear) + yearstoaggregate)
 
-# Change parameter to fit these cases
-# Recall, regressions from GCP team furnished 1 valuue per region: hence zeros(16)
-setparameter(adapt_temp, :impactdeathtemp, :gammatemp1, zeros(16))
-setparameter(adapt_temp, :impactdeathtemp, :gammatemp2, zeros(16))
-setparameter(adapt_gdp, :impactdeathtemp, :gammalogypc, zeros(16))
+    m1, m2 = getmarginalmodels(emissionyear=emissionyear, parameters=parameters,yearstorun=yearstorun,gas=gas)
+    # Zero out GCP numbers for both model runs
+    setparameter(m1, :impactdeathmorbidity, :dead_other, zeros(1051,16))
+    setparameter(m2, :impactdeathmorbidity, :dead_other, zeros(1051,16))
 
-#Run model
-run(adapt_basecase)
-run(adapt_temp)
-run(adapt_gdp)
+    damage1 = m1[:impactaggregation,:loss]
+    # Take out growth effect effect of run 2 by transforming
+    # the damage from run 2 into % of GDP of run 2, and then
+    # multiplying that with GDP of run 1
+    damage2 = m2[:impactaggregation,:loss]./m2[:socioeconomic,:income].*m1[:socioeconomic,:income]
 
-# Base case
-adapt_baseGCP = getdataframe(adapt_basecase,:impactdeathtemp, :gcpdead)
-writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\adapt_baseGCP.csv", adapt_baseGCP)
+    # Calculate the marginal damage between run 1 and 2 for each
+    # year/region
+    marginaldamage = (damage2.-damage1)/10000000.0
 
-adapt_baseCOMBO = getdataframe(adapt_basecase,:impactdeathmorbidity, :dead)
-writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\adapt_baseCOMBO.csv", adapt_baseCOMBO)
+    ypc = m1[:socioeconomic,:ypc]
 
-# Without gdp: testing dynamic vulnerability
-adapt_gdpGCP = getdataframe(adapt_gdp,:impactdeathtemp, :gcpdead)
-writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\adapt_gdpGCP.csv", adapt_gdpGCP)
+    df = zeros(yearstorun+1,16)
+    if !useequityweights
+        for r=1:16
+            x = 1.
+            for t=getindexfromyear(emissionyear):yearstorun
+                df[t,r] = x
+                gr = (ypc[t,r]-ypc[t-1,r])/ypc[t-1,r]
+                x = x / (1. + prtp + eta * gr)
+            end
+        end
+    else
+        globalypc = m1[:socioeconomic,:globalypc]
+        df = float64([t>=getindexfromyear(emissionyear) ? (globalypc[getindexfromyear(emissionyear)]/ypc[t,r])^eta / (1.0+prtp)^(t-getindexfromyear(emissionyear)) : 0.0 for t=1:yearstorun,r=1:16])
+    end
 
-adapt_gdpCOMBO = getdataframe(adapt_gdp,:impactdeathmorbidity, :dead)
-writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\adapt_gdpCOMBO.csv", adapt_gdpCOMBO)
+    scc = sum(marginaldamage[2:end,:].*df[2:end,:])
 
-#= Without temperature: testing dynamic vulnerability
-adapt_tempGCP = getdataframe(adapt_temp,:impactdeathtemp, :gcpdead)
-writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\adapt_tempGCP", adapt_tempGCP)
+    return scc
+end
 
-adapt_tempCOMBO= getdataframe(adapt_temp,:impactdeathmorbidity, :dead)
-writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\adapt_tempCOMBO.csv", adapt_tempCOMBO)=#
-
-#####################################################################
-# VSL: Original version
-#####################################################################
-
-# VSL standard run (all elasticities equal to 1)
-standard_run = getfund()
-
-#Change parameters to fit this case
-setparameter(standard_run, :vslvmorb, :vslel_highest, 1.0)
-setparameter(standard_run, :vslvmorb, :vslel_high, 1.0)
-setparameter(standard_run, :vslvmorb, :vslel_mid, 1.0)
-setparameter(standard_run, :vslvmorb, :vslel_low, 1.0)
-
-#Run model
-run(standard_run)
-
-# View results with all VSL elasticities = 1.0 (FUND's business as usual)
-VSL_old = getdataframe(standard_run,:vslvmorb, :vsl)
-writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\VSL_old.csv", VSL_old)
-unstack(VSL_old, :time, :regions, :vsl)
-
-# View cost with elasticities set to zero
-cost_combo_VSL1 = getdataframe(standard_run,:impactdeathmorbidity, :deadcost)
-writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\cost_combo_VSL1.csv", cost_combo_VSL1)
-cost_combo_VSL1_regional = unstack(cost_combo_VSL1, :time, :regions, :deadcost)
-writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\cost_combo_VSL1_regional.csv", cost_combo_VSL1_regional)
-
-# View dead
-dead_combo_VSL1 = getdataframe(standard_run,:impactdeathmorbidity, :dead)
-writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\dead_combo_VSL1.csv", dead_combo_VSL1)
-dead_combo_VSL1_regional = unstack(dead_combo_VSL1, :time, :regions, :dead)
-writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\dead_combo_VSL1_regional.csv", dead_combo_VSL1_regional)
-
-#####################################################################
-# VSL: New version
-#####################################################################
-
-# Here, allow elasticities vary according to ypc value.
-# This is implemented directly in the new component, so just need to call
-# and run a fresh version of the model
-
-# Call model
-altered_run = getfund()
-
-# Run model
-run(altered_run)
-
-# View results
-VSL_new = getdataframe(altered_run,:vslvmorb, :vsl)
-writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\VSL_new.csv", VSL_new)
-unstack(VSL_new, :time, :regions, :vsl)
-
-#####################################################################
-# VSL: Comparing old and new values
-#####################################################################
-
-# PLOT THE DIFFERENCE FOR ALL YEARS post 2010 AS A PERCENTAGE CHANGE IN VSL
-println(altered_run[:vslvmorb, :vsl][60,:] .- standard_run[:vslvmorb, :vsl][60,:])
-
-VSLcompare = altered_run[:vslvmorb, :vsl] .- standard_run[:vslvmorb, :vsl]
-VSLpercentchange = (VSLcompare ./ standard_run[:vslvmorb, :vsl]) * 100
-
-VSLplotpercent = DataFrame(VSLpercentchange)
-VSLplotdifference = DataFrame(VSLcompare)
-
-writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\VSL_percentchange.csv", VSLplotpercent)
-writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\VSL_difference.csv", VSLplotdifference)
-
-#####################################################################
-# Monte Carlo Simulation: Use PAGE as basis
-#####################################################################
-
-#=
-include("getpagefunction.jl")
- getpage()
- run(m)
--temp=m[:ClimateTemperature,:rt_g_globaltemperature][10]
-+temp=[m[:ClimateTemperature,:rt_g_globaltemperature][10]]
-
- #Define uncertin parameters based on PAGE 2009 documentation
- uncertain_params=Dict()
--uncertain_params[:res_CO2atmlifetime]=TriangularDist(50., 100., 70.)
-+uncertain_params[:co2cycle,:res_CO2atmlifetime]=TriangularDist(50., 100., 70.)
-
--nit=2
--for i in 1:nit
--    for (p_name, p_dist) in uncertain_params
-+nit=50
-+@time for i in 1:nit
-+    for ((p_comp, p_name), p_dist) in uncertain_params
-         v = rand(p_dist)
--        setparameter(m, p_name, v)
-+        setparameter(m, p_comp,p_name, v)
-     end
-     run(m)
-     push!(temp, m[:ClimateTemperature,:rt_g_globaltemperature][10]) =#
 
 
 #=Play with plotting options
