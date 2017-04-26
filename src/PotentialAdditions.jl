@@ -33,7 +33,7 @@ run(dv_elast)
 dv_elast_pop = getdataframe(dv_elast, :population, :populationin1)
 writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\PotentialAdditions\\dv_elast_pop.csv", dv_elast_pop)
 dv_elast_popT = unstack(dv_elast_pop, :time, :regions, :populationin1)
-writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\PotentialAdditions\\dv_elast_popcT.csv", dv_elast_popT)
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\PotentialAdditions\\dv_elast_popT.csv", dv_elast_popT)
 
 ###
 
@@ -108,7 +108,7 @@ writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\PotentialAddition
 dv_hold90_pop = getdataframe(dv_hold90, :population, :populationin1)
 writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\PotentialAdditions\\dv_hold90_pop.csv", dv_hold90_pop)
 dv_hold90_popT = unstack(dv_hold90_pop, :time, :regions, :populationin1)
-writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\PotentialAdditions\\dv_hold90_popcT.csv", dv_hold90_popT)
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\PotentialAdditions\\dv_hold90_popT.csv", dv_hold90_popT)
 
 ###
 

@@ -27,7 +27,7 @@ using DataArrays, DataFrames
 results_pop = getdataframe(results, :population, :populationin1)
 writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\results_pop.csv", results_pop)
 results_popT = unstack(results_pop, :time, :regions, :populationin1)
-writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\results_popcT.csv", results_popT)
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\results_popT.csv", results_popT)
 
 
 #####################################################################
@@ -107,7 +107,7 @@ check1 = println(soloFUND_run[:impactdeathmorbidity, :dead_other])
 soloFUND_pop = getdataframe(soloFUND_run, :population, :populationin1)
 writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\soloFUND_pop.csv", soloFUND_pop)
 soloFUND_popT = unstack(soloFUND_pop, :time, :regions, :populationin1)
-writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\soloFUND_popcT.csv", soloFUND_popT)
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\soloFUND_popT.csv", soloFUND_popT)
 
 ###
 
@@ -155,7 +155,7 @@ run(fund10_run)
 fund10_pop = getdataframe(fund10_run, :population, :populationin1)
 writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\fund10_pop.csv",fund10_pop)
 fund10_popT = unstack(fund10_pop, :time, :regions, :populationin1)
-writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\fund10_popcT.csv", fund10_popT)
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\fund10_popT.csv", fund10_popT)
 
 ###
 
@@ -195,7 +195,7 @@ run(combo10_run)
 combo10_pop = getdataframe(combo10_run, :population, :populationin1)
 writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\combo10_pop.csv",combo10_pop)
 combo10_popT = unstack(combo10_pop, :time, :regions, :populationin1)
-writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\combo10_popcT.csv", combo10_popT)
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\combo10_popT.csv", combo10_popT)
 
 ###
 
@@ -231,7 +231,7 @@ run(fund05_run)
 fund05_pop = getdataframe(fund05_run, :population, :populationin1)
 writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\fund05_pop.csv",fund05_pop)
 fund05_popT = unstack(fund05_pop, :time, :regions, :populationin1)
-writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\fund05_popcT.csv", fund05_popT)
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\fund05_popT.csv", fund05_popT)
 
 ###
 
@@ -271,7 +271,7 @@ run(combo05_run)
 combo05_pop = getdataframe(combo05_run, :population, :populationin1)
 writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\combo05_pop.csv",combo05_pop)
 combo05_popT = unstack(combo05_pop, :time, :regions, :populationin1)
-writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\combo05_popcT.csv", combo05_popT)
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\Presentation\\combo05_popT.csv", combo05_popT)
 
 ###
 

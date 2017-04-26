@@ -21,9 +21,11 @@ include("fund.jl")
 results = getfund()
 
 # Zero out double counted elements for integrated model
-setparameter(results,:impactdeathmorbidity,:cardheat, zeros(1051,16))
+#=setparameter(results,:impactdeathmorbidity,:cardheat, zeros(1051,16))
 setparameter(results,:impactdeathmorbidity,:cardcold, zeros(1051,16))
 setparameter(results,:impactdeathmorbidity,:resp, zeros(1051,16))
+=#
+
 #=setparameter(results, :socioeconomic, :runwithoutdamage, true)
 setparameter(results, :population, :runwithoutpopulationperturbation, true)=#
 
@@ -39,7 +41,7 @@ unstack(verify1, :time, :regions, :ypc)
 results_pop = getdataframe(results, :population, :populationin1)
 writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\results_pop.csv",results_pop)
 results_popT = unstack(results_pop, :time, :regions, :populationin1)
-writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\results_popcT.csv", results_popT)
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\results_popT.csv", results_popT)
 
 ###
 
