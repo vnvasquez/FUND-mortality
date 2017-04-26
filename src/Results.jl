@@ -21,10 +21,10 @@ include("fund.jl")
 results = getfund()
 
 # Zero out double counted elements for integrated model
-#=setparameter(results,:impactdeathmorbidity,:cardheat, zeros(1051,16))
+setparameter(results,:impactdeathmorbidity,:cardheat, zeros(1051,16))
 setparameter(results,:impactdeathmorbidity,:cardcold, zeros(1051,16))
 setparameter(results,:impactdeathmorbidity,:resp, zeros(1051,16))
-=#
+
 
 #=setparameter(results, :socioeconomic, :runwithoutdamage, true)
 setparameter(results, :population, :runwithoutpopulationperturbation, true)=#

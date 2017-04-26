@@ -181,7 +181,7 @@ run(dv_elast0)
 # BASECASE - Extract populationin1 to use for constructing global mortrate (need population weighted)
 dv_basecase_pop = getdataframe(dv_basecase, :population, :populationin1)
 writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\PotentialAdditions\\dv_basecase_pop.csv", dv_basecase_pop)
-dv_basecase_popT = unstack(dv_hold90_pop, :time, :regions, :populationin1)
+dv_basecase_popT = unstack(dv_basecase_pop, :time, :regions, :populationin1)
 writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\PotentialAdditions\\dv_basecase_popT.csv", dv_basecase_popT)
 
 # NEW CASE - Extract populationin1 to use for constructing global mortrate (need population weighted)
