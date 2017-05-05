@@ -19,7 +19,7 @@ include("fund.jl")
 dv_elast = getfund()
 
 # Set elasticity (gammalogypc) to FUND's original
-setparameter(dv_elast, :impactdeathtemp, :gammalogypc, fill(-2.65, (16,)))
+setparameter(dv_elast, :impactdeathtemp, :gammalogypc, fill(-2.65, 16))
 
 # Zero out double counted elements for integrated model
 setparameter(dv_elast,:impactdeathmorbidity,:cardheat, zeros(1051,16))
@@ -28,6 +28,9 @@ setparameter(dv_elast,:impactdeathmorbidity,:resp, zeros(1051,16))
 
 # Run
 run(dv_elast)
+
+
+
 
 # Extract populationin1 to use for constructing global mortrate (need population weighted)
 dv_elast_pop = getdataframe(dv_elast, :population, :populationin1)

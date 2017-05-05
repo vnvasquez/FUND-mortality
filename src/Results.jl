@@ -101,6 +101,12 @@ run(soloFUND_run)
 check1 = println(soloFUND_run[:impactdeathmorbidity, :dead_other])
 check2 = println(soloFUND_run[:population, :population])
 
+# Extract populationin1 to use for constructing global mortrate (need population weighted)
+fund_pop = getdataframe(results, :population, :populationin1)
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\fund_pop.csv",fund_pop)
+fund_popT = unstack(fund_pop, :time, :regions, :populationin1)
+writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\fund_popT.csv", fund_popT)
+
 #FUND dead
 dead_FUND = getdataframe(soloFUND_run,:impactdeathmorbidity, :dead)
 writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\dead_FUND.csv",dead_FUND)
@@ -128,7 +134,7 @@ writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\mortrate_FUND_reg
 # Using one ton pulse for single year (if desire 1 ton/year for ten years
 # or if wish to compare other gases, see original code)
 # Source: marginaldamages3 component, FUND3.9 JUlia version
-function getmarginaldamages1(;emissionyear=2010,parameters=nothing,yearstoaggregate=1000,gas=:C)
+function getmarginaldamages1_vv(;emissionyear=2010,parameters=nothing,yearstoaggregate=1000,gas=:C)
     yearstorun = min(1050, getindexfromyear(emissionyear) + yearstoaggregate)
 
     m1 = getfund(nsteps=yearstorun,params=parameters)
@@ -169,18 +175,59 @@ function getmarginaldamages1(;emissionyear=2010,parameters=nothing,yearstoaggreg
 end
 
 # View results
-marginaldamage = getmarginaldamages1()
+marginaldamage = getmarginaldamages1_vv()
 marginal_combo = DataFrame(marginaldamage)
 writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\marginal_combo.csv", marginal_combo)
 
 #####################################################################
 # SCC - INTEGRATED MODEL
 #####################################################################
+include("fund.jl")
 
-function marginaldamage3(;emissionyear=2010,parameters=nothing,yearstoaggregate=1000,gas=:C,useequityweights=false,eta=1.0,prtp=0.001)
+function getmarginalmodels_vv(;gas=:C,emissionyear=2010,parameters=nothing,yearstorun=1050)
+    m1 = getfund(nsteps=yearstorun,params=parameters)
+
+    m2 = getfund(nsteps=yearstorun,params=parameters)
+    addcomponent(m2, adder, :marginalemission, before=:climateco2cycle)
+    addem = zeros(yearstorun+1)
+    addem[getindexfromyear(emissionyear):getindexfromyear(emissionyear)+9] = 1.0
+    setparameter(m2,:marginalemission,:add,addem)
+
+    # Zero out double counted elements for integrated model in both runs
+    setparameter(m1,:impactdeathmorbidity,:cardheat, zeros(1051,16))
+    setparameter(m1,:impactdeathmorbidity,:cardcold, zeros(1051,16))
+    setparameter(m1,:impactdeathmorbidity,:resp, zeros(1051,16))
+
+    setparameter(m2,:impactdeathmorbidity,:cardheat, zeros(1051,16))
+    setparameter(m2,:impactdeathmorbidity,:cardcold, zeros(1051,16))
+    setparameter(m2,:impactdeathmorbidity,:resp, zeros(1051,16))
+
+    if gas==:C
+        connectparameter(m2,:marginalemission,:input,:emissions,:mco2)
+        connectparameter(m2, :climateco2cycle,:mco2,:marginalemission,:output)
+    elseif gas==:CH4
+        connectparameter(m2,:marginalemission,:input,:emissions,:globch4)
+        connectparameter(m2, :climatech4cycle,:globch4,:marginalemission,:output)
+    elseif gas==:N2O
+        connectparameter(m2,:marginalemission,:input,:emissions,:globn2o)
+        connectparameter(m2, :climaten2ocycle,:globn2o,:marginalemission,:output)
+    elseif gas==:SF6
+        connectparameter(m2,:marginalemission,:input,:emissions,:globsf6)
+        connectparameter(m2, :climatesf6cycle,:globsf6,:marginalemission,:output)
+    else
+        error("Unknown gas.")
+    end
+
+    run(m1)
+    run(m2)
+
+    return m1, m2
+end
+
+function marginaldamage3_vv(;emissionyear=2010,parameters=nothing,yearstoaggregate=1000,gas=:C,useequityweights=false,eta=1.0,prtp=0.001)
     yearstorun = min(1050, getindexfromyear(emissionyear) + yearstoaggregate)
 
-    m1, m2 = getmarginalmodels(emissionyear=emissionyear, parameters=parameters,yearstorun=yearstorun,gas=gas)
+    m1, m2 = getmarginalmodels_vv(emissionyear=emissionyear, parameters=parameters,yearstorun=yearstorun,gas=gas)
 
     damage1 = m1[:impactaggregation,:loss]
     # Take out growth effect effect of run 2 by transforming
@@ -215,11 +262,14 @@ function marginaldamage3(;emissionyear=2010,parameters=nothing,yearstoaggregate=
 end
 
 # View results
-scc = marginaldamage3()
-scc_combo = DataFrame(scc)
-writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\scc_combo.csv", scc_combo)
+scc_fever_25 = marginaldamage3_vv(emissionyear=2017, eta=0.0, prtp=0.025)
+scc_fever_25/3.66
 
+scc_fever_30 = marginaldamage3_vv(emissionyear=2017, eta=0.0, prtp=0.03)
+scc_fever_30/3.66
 
+scc_fever_50 = marginaldamage3_vv(emissionyear=2017, eta=0.0, prtp=0.05)
+scc_fever_50/3.66
 
 ###################################################################################
 # Marginal Damages - FUND MODEL ALONE
@@ -265,14 +315,48 @@ end
 #####################################################################
 # SCC - FUND MODEL ALONE
 #####################################################################
+include("fund.jl")
 
-function marginaldamage3(;emissionyear=2010,parameters=nothing,yearstoaggregate=1000,gas=:C,useequityweights=false,eta=1.0,prtp=0.001)
+function getmarginalmodels_vv(;gas=:C,emissionyear=2010,parameters=nothing,yearstorun=1050)
+    m1 = getfund(nsteps=yearstorun,params=parameters)
+
+    m2 = getfund(nsteps=yearstorun,params=parameters)
+    addcomponent(m2, adder, :marginalemission, before=:climateco2cycle)
+    addem = zeros(yearstorun+1)
+    addem[getindexfromyear(emissionyear):getindexfromyear(emissionyear)+9] = 1.0
+    setparameter(m2,:marginalemission,:add,addem)
+
+    # Zero out double counted elements for integrated model in both runs
+    setparameter(m1,:impactdeathmorbidity,:dead_other, zeros(1051,16))
+    setparameter(m2,:impactdeathmorbidity,:dead_other, zeros(1051,16))
+
+
+    if gas==:C
+        connectparameter(m2,:marginalemission,:input,:emissions,:mco2)
+        connectparameter(m2, :climateco2cycle,:mco2,:marginalemission,:output)
+    elseif gas==:CH4
+        connectparameter(m2,:marginalemission,:input,:emissions,:globch4)
+        connectparameter(m2, :climatech4cycle,:globch4,:marginalemission,:output)
+    elseif gas==:N2O
+        connectparameter(m2,:marginalemission,:input,:emissions,:globn2o)
+        connectparameter(m2, :climaten2ocycle,:globn2o,:marginalemission,:output)
+    elseif gas==:SF6
+        connectparameter(m2,:marginalemission,:input,:emissions,:globsf6)
+        connectparameter(m2, :climatesf6cycle,:globsf6,:marginalemission,:output)
+    else
+        error("Unknown gas.")
+    end
+
+    run(m1)
+    run(m2)
+
+    return m1, m2
+end
+
+function marginaldamage3_vv(;emissionyear=2010,parameters=nothing,yearstoaggregate=1000,gas=:C,useequityweights=false,eta=1.0,prtp=0.001)
     yearstorun = min(1050, getindexfromyear(emissionyear) + yearstoaggregate)
 
-    m1, m2 = getmarginalmodels(emissionyear=emissionyear, parameters=parameters,yearstorun=yearstorun,gas=gas)
-    # Zero out GCP numbers for both model runs
-    setparameter(m1, :impactdeathmorbidity, :dead_other, zeros(1051,16))
-    setparameter(m2, :impactdeathmorbidity, :dead_other, zeros(1051,16))
+    m1, m2 = getmarginalmodels_vv(emissionyear=emissionyear, parameters=parameters,yearstorun=yearstorun,gas=gas)
 
     damage1 = m1[:impactaggregation,:loss]
     # Take out growth effect effect of run 2 by transforming
@@ -306,6 +390,15 @@ function marginaldamage3(;emissionyear=2010,parameters=nothing,yearstoaggregate=
     return scc
 end
 
+# View results
+scc_fund_25 = marginaldamage3_vv(emissionyear=2017, eta=0.0, prtp=0.025)
+scc_fund_25/3.66
+
+scc_fund_30 = marginaldamage3_vv(emissionyear=2017, eta=0.0, prtp=0.03)
+scc_fund_30/3.66
+
+scc_fund_50 = marginaldamage3_vv(emissionyear=2017, eta=0.0, prtp=0.05)
+scc_fund_50/3.66
 
 
 #=Play with plotting options
