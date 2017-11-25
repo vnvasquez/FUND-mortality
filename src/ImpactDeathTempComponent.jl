@@ -48,7 +48,11 @@ function run_timestep(s::impactdeathtemp, t::Int)
                                                                                                     # then *1.28 for inflation to get 2005 USD and *1_000 to even out units
 
         # New functional form designed to more closely emulate FUND
-        v.morttempeffect[t, r] = (((v.ypc90[r]^p.gammalogypc[r]) * p.gammatemp1[r] * p.temp[t]) + ((v.ypc90[r]^p.gammalogypc[r]) * p.gammatemp2[r] * p.temp[t]^2)) * (v.ypc[t, r]/v.ypc90[r])^p.gammalogypc[r]
+        #=v.morttempeffect[t, r] = (((v.ypc90[r]^p.gammalogypc[r]) * p.gammatemp1[r] * p.temp[t]) + 
+        ((v.ypc90[r]^p.gammalogypc[r]) * p.gammatemp2[r] * p.temp[t]^2)) * (v.ypc[t, r]/v.ypc90[r])^p.gammalogypc[r]=#
+
+        # Corrected for ypc90 issue
+        v.morttempeffect[t, r] = (p.gammatemp1[r] * p.temp[t] + p.gammatemp2[r] * p.temp[t]^2) * v.ypc[t, r]^p.gammalogypc[r]
 
         
         # Use only when setting socioeconomic conditions to 90

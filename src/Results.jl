@@ -34,34 +34,34 @@ run(results)
 
 #check values
 verify1 = getdataframe(results, :impactdeathtemp, :ypc)
-writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\verify_ypc.csv", verify1)
+writetable("C:\\Users\\Valer\\Dropbox\\Master\\Data\\Results\\verify_ypc.csv", verify1)
 unstack(verify1, :time, :regions, :ypc)
 
 # Extract populationin1 to use for constructing global mortrate (need population weighted)
 results_pop = getdataframe(results, :population, :populationin1)
-writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\results_pop.csv",results_pop)
+writetable("C:\\Users\\Valer\\Dropbox\\Master\\Data\\Results\\results_pop.csv",results_pop)
 results_popT = unstack(results_pop, :time, :regions, :populationin1)
-writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\results_popT.csv", results_popT)
+writetable("C:\\Users\\Valer\\Dropbox\\Master\\Data\\Results\\results_popT.csv", results_popT)
 
 ###
 
 #Total rate
 mortrate_combo = getdataframe(results,:impactdeathmorbidity, :deadrate)
-writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\mortrate_combo.csv", mortrate_combo)
+writetable("C:\\Users\\Valer\\Dropbox\\Master\\Data\\Results\\mortrate_combo.csv", mortrate_combo)
 mortrate_combo_regional = unstack(mortrate_combo, :time, :regions, :deadrate)
-writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\mortrate_combo_regional.csv", mortrate_combo_regional)
+writetable("C:\\Users\\Valer\\Dropbox\\Master\\Data\\Results\\mortrate_combo_regional.csv", mortrate_combo_regional)
 
 # Total dead
 dead_combo = getdataframe(results,:impactdeathmorbidity, :dead)
-writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\dead_combo.csv", dead_combo)
+writetable("C:\\Users\\Valer\\Dropbox\\Master\\Data\\Results\\dead_combo.csv", dead_combo)
 dead_combo_regional = unstack(dead_combo, :time, :regions, :dead)
-writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\dead_combo_regional.csv", dead_combo_regional)
+writetable("C:\\Users\\Valer\\Dropbox\\Master\\Data\\Results\\dead_combo_regional.csv", dead_combo_regional)
 
 # Total cost
 cost_combo = getdataframe(results,:impactdeathmorbidity, :deadcost)
-writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\cost_combo.csv", cost_combo)
+writetable("C:\\Users\\Valer\\Dropbox\\Master\\Data\\Results\\cost_combo.csv", cost_combo)
 cost_combo_regional = unstack(cost_combo, :time, :regions, :deadcost)
-writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\cost_combo_regional.csv", cost_combo_regional)
+writetable("C:\\Users\\Valer\\Dropbox\\Master\\Data\\Results\\cost_combo_regional.csv", cost_combo_regional)
 
 #####################################################################
 # GCP Model: Rates, Total Dead, Costs
@@ -69,19 +69,19 @@ writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\cost_combo_region
 
 # GCP rate:THESE ARE THE NUMBERS THAT MATCH JR'S RESULTS WHEN MULTIPLIED BY 100_000.00
 mortrate_GCP = getdataframe(results,:impactdeathtemp, :morttempeffect)
-writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\mortrate_GCP.csv", mortrate_GCP)
+writetable("C:\\Users\\Valer\\Dropbox\\Master\\Data\\Results\\mortrate_GCP.csv", mortrate_GCP)
 mortrate_GCP_regional = unstack(mortrate_GCP, :time, :regions, :morttempeffect)
-writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\mortrate_GCP_regional.csv", mortrate_GCP_regional)
+writetable("C:\\Users\\Valer\\Dropbox\\Master\\Data\\Results\\mortrate_GCP_regional.csv", mortrate_GCP_regional)
 
 # GCP dead
 dead_GCP = getdataframe(results,:impactdeathtemp, :gcpdead)
-writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\dead_GCP.csv", dead_GCP)
+writetable("C:\\Users\\Valer\\Dropbox\\Master\\Data\\Results\\dead_GCP.csv", dead_GCP)
 dead_GCP_regional = unstack(dead_GCP, :time, :regions, :gcpdead)
-writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\dead_GCP_regional.csv", dead_GCP_regional)
+writetable("C:\\Users\\Valer\\Dropbox\\Master\\Data\\Results\\dead_GCP_regional.csv", dead_GCP_regional)
 
 # GCP cost
 cost_GCP = getdataframe(results,:impactdeathtemp, :gcpdeadcost)
-writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\cost_GCP.csv", cost_GCP)
+writetable("C:\\Users\\Valer\\Dropbox\\Master\\Data\\Results\\cost_GCP.csv", cost_GCP)
 unstack(cost_GCP, :time, :regions, :gcpdeadcost)
 
 #####################################################################
@@ -103,27 +103,27 @@ check2 = println(soloFUND_run[:population, :population])
 
 # Extract populationin1 to use for constructing global mortrate (need population weighted)
 fund_pop = getdataframe(results, :population, :populationin1)
-writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\fund_pop.csv",fund_pop)
+writetable("C:\\Users\\Valer\\Dropbox\\Master\\Data\\Results\\fund_pop.csv",fund_pop)
 fund_popT = unstack(fund_pop, :time, :regions, :populationin1)
-writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\fund_popT.csv", fund_popT)
+writetable("C:\\Users\\Valer\\Dropbox\\Master\\Data\\Results\\fund_popT.csv", fund_popT)
 
 #FUND dead
 dead_FUND = getdataframe(soloFUND_run,:impactdeathmorbidity, :dead)
-writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\dead_FUND.csv",dead_FUND)
+writetable("C:\\Users\\Valer\\Dropbox\\Master\\Data\\Results\\dead_FUND.csv",dead_FUND)
 dead_FUND_regional = unstack(dead_FUND, :time, :regions, :dead)
-writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\dead_FUND_regional.csv",dead_FUND_regional)
+writetable("C:\\Users\\Valer\\Dropbox\\Master\\Data\\Results\\dead_FUND_regional.csv",dead_FUND_regional)
 
 # FUND cost
 cost_FUND = getdataframe(soloFUND_run,:impactdeathmorbidity, :deadcost)
-writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\cost_FUND.csv", cost_FUND)
+writetable("C:\\Users\\Valer\\Dropbox\\Master\\Data\\Results\\cost_FUND.csv", cost_FUND)
 cost_FUND_regional = unstack(cost_FUND, :time, :regions, :deadcost)
-writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\cost_FUND_regional.csv", cost_FUND_regional)
+writetable("C:\\Users\\Valer\\Dropbox\\Master\\Data\\Results\\cost_FUND_regional.csv", cost_FUND_regional)
 
 #FUND rate
 mortrate_FUND = getdataframe(soloFUND_run,:impactdeathmorbidity, :deadrate)
-writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\mortrate_FUND.csv",mortrate_FUND)
+writetable("C:\\Users\\Valer\\Dropbox\\Master\\Data\\Results\\mortrate_FUND.csv",mortrate_FUND)
 mortrate_FUND_regional = unstack(mortrate_FUND, :time, :regions, :deadrate)
-writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\mortrate_FUND_regional.csv",mortrate_FUND_regional)
+writetable("C:\\Users\\Valer\\Dropbox\\Master\\Data\\Results\\mortrate_FUND_regional.csv",mortrate_FUND_regional)
 
 
 #####################################################################
@@ -177,7 +177,7 @@ end
 # View results
 marginaldamage = getmarginaldamages1_vv()
 marginal_combo = DataFrame(marginaldamage)
-writetable("C:\\Users\\Valeri\\Dropbox\\Master\\Data\\Results\\marginal_combo.csv", marginal_combo)
+writetable("C:\\Users\\Valer\\Dropbox\\Master\\Data\\Results\\marginal_combo.csv", marginal_combo)
 
 #####################################################################
 # SCC - INTEGRATED MODEL
