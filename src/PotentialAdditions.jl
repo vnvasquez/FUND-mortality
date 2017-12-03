@@ -220,22 +220,56 @@ writetable("C:\\Users\\Valer\\Dropbox\\Master\\Data\\Results\\PotentialAdditions
 
 
 ### DONT FORGET TO SET APROPRIATE parameters TO ZERO
-#=
-include("getpagefunction.jl")
-getpage()
+
+cd("src")
+using Mimi 
+using Distributions
+
+# load and run model
+include("fund.jl")
+m = getfund()
+
+# Zero out double counted elements for integrated model
+setparameter(m,:impactdeathmorbidity,:cardheat, zeros(1051,16))
+setparameter(m,:impactdeathmorbidity,:cardcold, zeros(1051,16))
+setparameter(m,:impactdeathmorbidity,:resp, zeros(1051,16))
+
 run(m)
 
-temp=[m[:ClimateTemperature,:rt_g_globaltemperature][10]]
+# test temperature for iteration "0" -> originally was push!(temptest, m[:climatedynamics,:temp][11]) 
+temptest = Dict(
+  "0" => m[:climatedynamics,:temp])
 
-#Define uncertin parameters based on PAGE 2009 documentation
+climate_sens_v = [0.0]; 
+
+# test mortality for iteration "0" 
+morttest = Dict(
+  "0"  => m[:impactdeathmorbidity, :dead_other])
+
+# Define uncertain parameters using dictionary 
 uncertain_params=Dict()
-uncertain_params[:co2cycle,:res_CO2atmlifetime]=TriangularDist(50., 100., 70.)
+uncertain_params[:climatedynamics,:ClimateSensitivity]=Gamma(6.48, 0.55)
 
+# Number of iterations 
 nit=50
+
+# Loop to run Monte Carlo 
 @time for i in 1:nit
 for ((p_comp, p_name), p_dist) in uncertain_params
   v = rand(p_dist)
+  push!(climate_sens_v,v)
   setparameter(m, p_comp,p_name, v)
 end
 run(m)
-push!(temp, m[:ClimateTemperature,:rt_g_globaltemperature][10]) =#
+# test temperature again, compare to original values  
+key = string(i)
+morttest[key] = m[:impactdeathmorbidity, :dead_other]
+temptest[key] = m[:climatedynamics,:temp]
+
+# Zero out double counted elements for integrated model
+setparameter(m,:impactdeathmorbidity,:cardheat, zeros(1051,16))
+setparameter(m,:impactdeathmorbidity,:cardcold, zeros(1051,16))
+setparameter(m,:impactdeathmorbidity,:resp, zeros(1051,16))
+
+end 
+
